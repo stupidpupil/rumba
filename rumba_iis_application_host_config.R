@@ -7,7 +7,7 @@ RumbaIISApplicationHostConfig <- R6Class("RumbaIISApplicationHostConfig", list(
   applicationHostConfigPath = NULL,
   rumbaWebFarmPrefix = "Rumba ",
 
-  initialize = function(applicationHostConfigPath = "%SystemRoot%/system32/inetsrv/config/applicationHost.config"){
+  initialize = function(applicationHostConfigPath = "C:/Windows/system32/inetsrv/config/applicationHost.config"){
 
     stopifnot(is.character(applicationHostConfigPath))
     stopifnot(file.exists(applicationHostConfigPath))
