@@ -9,35 +9,35 @@
 }
 
 .rumba-state.stopped{
-  color: #888888;
-  background-color: #cccccc;
+  color: #888;
+  background-color: #eee;
 }
 
 .rumba-state.starting{
-  color: #000055;
-  background-color: #cccccc;
+  color: #005;
+  background-color: #eee;
 }
 
 
 .rumba-state.started{
-  color: #000055;
-  background-color: #bbbbdd;
+  color: #005;
+  background-color: #dde;
 }
 
 .rumba-state.stopping{
-  color: #000000;
-  background-color: #cccccc;
+  color: #000;
+  background-color: #eee;
 }
 
 .rumba-state.failed{
-  color: #550000;
-  background-color: #ddbbbb;
+  color: #500;
+  background-color: #dbb;
   font-weight: bold;
 }
 
 .rumba-state.invalid{
-  color: #550000;
-  background-color: #cccccc;
+  color: #500;
+  background-color: #eee;
   font-weight: bold;
 }
 
