@@ -1,7 +1,23 @@
 server <- function(input, output, session){
 
-  rumba_apps <- reactivePoll(1000, NULL,
+  # Won't react to changing resources
+  # but will react to changing config
+  rumba_apps <- reactivePoll(500, NULL,
 
+    checkFunc = function(){
+      list(
+        dirs = rumba_apps_unreactive %>% map(~.x$appDir),
+        options = rumba_apps_unreactive %>% map(~.x$options)
+      )
+    },
+
+    valueFunc = function(){
+      rumba_apps_unreactive
+    }
+  )
+
+
+  rumba_apps_with_tick_and_resources <- reactivePoll(1000, NULL,
     checkFunc = function(){
       for (app in rumba_apps_unreactive) {
         app$tick()
@@ -13,23 +29,6 @@ server <- function(input, output, session){
         state = rumba_apps_unreactive %>% map(~.x$state),
         active_workers = rumba_apps_unreactive %>% map(~.x$activeWorkerCount()),
         mem = rumba_apps_unreactive  %>% map(~.x$getRSS())
-      )
-    },
-
-    valueFunc = function(){
-      rumba_apps_unreactive
-    }
-
-  )
-
-  # Won't react to changing resources
-  # but will react to changing config
-  rumba_apps_without_tick <- reactivePoll(500, NULL,
-
-    checkFunc = function(){
-      list(
-        dirs = rumba_apps_unreactive %>% map(~.x$appDir),
-        options = rumba_apps_unreactive %>% map(~.x$options)
       )
     },
 
@@ -51,7 +50,7 @@ server <- function(input, output, session){
       ),
 
       tags$tbody(
-        rumba_apps_without_tick() %>% imap(function(app, i){
+        rumba_apps() %>% imap(function(app, i){
           tags$tr(
             tags$td(app$name),
             tags$td(app$options$webPath),
@@ -76,7 +75,7 @@ server <- function(input, output, session){
         d <- c
 
         output[[paste0("textTableRumbaApps", d, "Td", i)]] <- renderText({
-          uiTableRumbaAppsResourceColumns[[d]](rumba_apps()[[j]])
+          uiTableRumbaAppsResourceColumns[[d]](rumba_apps_with_tick_and_resources()[[j]])
         })
       })
     }
@@ -109,20 +108,14 @@ server <- function(input, output, session){
   observe({
     selected <- isolate(input$selectApp)
 
-    req(rumba_apps_without_tick())
+    req(rumba_apps())
 
-    apps <- rumba_apps_without_tick()
+    apps <- rumba_apps()
 
     choices <- 1:length(apps)
     names(choices) <- paste0(1:length(apps), " - ", apps %>% map_chr(~.x$name))
 
     updateSelectInput(session, 'selectApp', selected=selected, choices=choices)
-  })
-
-  selectedRumbaAppWithoutTick <- reactive({
-    req(rumba_apps_without_tick())
-    req(input$selectApp)
-    rumba_apps_without_tick()[[as.integer(input$selectApp)]]
   })
 
   selectedRumbaApp <- reactive({
@@ -131,22 +124,28 @@ server <- function(input, output, session){
     rumba_apps()[[as.integer(input$selectApp)]]
   })
 
+  selectedRumbaAppWithTickAndResources <- reactive({
+    req(rumba_apps_with_tick_and_resources())
+    req(input$selectApp)
+    rumba_apps_with_tick_and_resources()[[as.integer(input$selectApp)]]
+  })
+
   output$uiSelectedApp <- renderUI({
     div(
-      h2(id="selectedAppName", selectedRumbaAppWithoutTick()$name),
-      p(id="selectedAppDir", normalizePath(selectedRumbaAppWithoutTick()$appDir)),
+      h2(id="selectedAppName", selectedRumbaApp()$name),
+      p(id="selectedAppDir", normalizePath(selectedRumbaApp()$appDir)),
       p(
         a(id="selectedAppWebPath", 
-          href=paste0(rumba_options$webPrefix, selectedRumbaAppWithoutTick()$options$webPath),
+          href=paste0(rumba_options$webPrefix, selectedRumbaApp()$options$webPath),
           target="_blank",
-          selectedRumbaAppWithoutTick()$options$webPath
+          selectedRumbaApp()$options$webPath
           )
       )
     )
   })
 
   output$uiSelectedAppInvalidError <- renderUI({
-    if(selectedRumbaApp()$state != "invalid"){
+    if(selectedRumbaAppWithTickAndResources()$state != "invalid"){
       return(NULL)
     }
 
@@ -169,22 +168,22 @@ server <- function(input, output, session){
 
       err$message
 
-    })(selectedRumbaApp()$invalidError))
+    })(selectedRumbaAppWithTickAndResources()$invalidError))
 
   })
 
   observeEvent(input$buttonStartApp, {
-    req(selectedRumbaApp())
-    selectedRumbaApp()$start()
+    req(selectedRumbaAppWithTickAndResources())
+    selectedRumbaAppWithTickAndResources()$start()
   })
 
   observeEvent(input$buttonStopApp, {
-    req(selectedRumbaApp())
-    selectedRumbaApp()$stop()
+    req(selectedRumbaAppWithTickAndResources())
+    selectedRumbaAppWithTickAndResources()$stop()
   })
 
   output$tableSelectedAppRumbaWorkers <- renderTable({
-    ws <- selectedRumbaApp()$workers
+    ws <- selectedRumbaAppWithTickAndResources()$workers
 
     tibble(
       Idx = ws %>% map_chr(~.x$workerIndex) %>% as.integer(),
@@ -201,7 +200,7 @@ server <- function(input, output, session){
 
   observe({
     selected <- isolate(input$selectWorker)
-    ws <- selectedRumbaAppWithoutTick()$workers
+    ws <- selectedRumbaApp()$workers
     choices <- 1:length(ws)
     names(choices) <- paste0(1:length(ws), " - ", ws %>% map_chr(~.x$getPort()))
 
