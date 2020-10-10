@@ -130,6 +130,8 @@ RumbaWorker <- R6Class("RumbaWorker", list(
 
   tick = function(){
 
+
+
     if(self$state == "stopping"){
       if(!self$process$is_alive()){
         self$state <- "stopped"
@@ -146,6 +148,10 @@ RumbaWorker <- R6Class("RumbaWorker", list(
       if(self$process$is_alive()){
         if(self$logHasListening()){
           self$state <- "started"
+        }
+      }else{
+        if(!is.null(self$process$get_exit_status())){
+          self$state <- "failed"
         }
       }
     }
