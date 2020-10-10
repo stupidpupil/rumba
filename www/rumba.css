@@ -6,18 +6,16 @@
   display: inline-block;
   text-align: center;
   border-radius: 0.5em;
+  background-color: #eee;
 }
 
 .rumba-state.stopped{
   color: #888;
-  background-color: #eee;
 }
 
 .rumba-state.starting{
   color: #005;
-  background-color: #eee;
 }
-
 
 .rumba-state.started{
   color: #005;
@@ -26,7 +24,6 @@
 
 .rumba-state.stopping{
   color: #000;
-  background-color: #eee;
 }
 
 .rumba-state.failed{
@@ -37,14 +34,12 @@
 
 .rumba-state.invalid{
   color: #500;
-  background-color: #eee;
   font-weight: bold;
 }
 
 .rumba-host, .rumba-port{
   font-family: "Consolas", monospace;
 }
-
 
 #uiSelectedApp{
   text-align: center;
