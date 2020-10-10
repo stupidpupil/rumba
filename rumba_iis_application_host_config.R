@@ -38,7 +38,7 @@ RumbaIISApplicationHostConfig <- R6Class("RumbaIISApplicationHostConfig", list(
     for(w in app$workers){
       wFs <- xml_add_child(doc, "server", address=w$getHost(), enabled="true")
 
-      xml_add_child(wFs, "applicationRequestRouting", httpPort=w$getPort())
+      xml_add_child(wFs, "applicationRequestRouting", httpPort=w$getPort(), weight=1)
     }
 
     arr <- xml_add_child(doc, "applicationRequestRouting")
