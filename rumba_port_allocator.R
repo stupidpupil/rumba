@@ -6,7 +6,7 @@ RumbaPortAllocator <- R6Class("RumbaPortAllocator", list(
   dynamicPortRange = 7001:12001,
 
   getClaimedPorts = function(){
-    sapply(rumba_apps_unreactive, function(a){a$getClaimedPorts()})
+    unlist(sapply(rumba_apps_unreactive, function(a){a$getClaimedPorts()}))
   },
 
   stopIfPortsAreNotFree = function(ports){
