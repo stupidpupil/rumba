@@ -16,8 +16,7 @@ server <- function(input, output, session){
     }
   )
 
-
-  rumba_apps_with_tick_and_resources <- reactivePoll(1000, NULL,
+  rumba_apps_with_tick_and_state <- reactivePoll(750, NULL,
     checkFunc = function(){
       for (app in rumba_apps_unreactive) {
         app$tick()
@@ -26,6 +25,20 @@ server <- function(input, output, session){
       list(
         dirs = rumba_apps_unreactive %>% map(~.x$appDir),
         options = rumba_apps_unreactive %>% map(~.x$options),
+        state = rumba_apps_unreactive %>% map(~.x$state),
+        active_workers = rumba_apps_unreactive %>% map(~.x$activeWorkerCount())
+      )
+    },
+
+    valueFunc = function(){
+      rumba_apps_unreactive
+    }
+  )
+
+
+  rumba_apps_with_resources <- reactivePoll(2500, NULL,
+    checkFunc = function(){  
+      list(
         state = rumba_apps_unreactive %>% map(~.x$state),
         active_workers = rumba_apps_unreactive %>% map(~.x$activeWorkerCount()),
         mem = rumba_apps_unreactive  %>% map(~.x$getRSS())
@@ -54,17 +67,34 @@ server <- function(input, output, session){
           tags$tr(
             tags$td(app$name),
             tags$td(app$options$webPath),
-            tags$td(textOutput(paste0("textTableRumbaAppsStateTd", i))),
-            tags$td(textOutput(paste0("textTableRumbaAppsWorkerCountTd", i))),
-            tags$td(textOutput(paste0("textTableRumbaAppsMemoryTd", i)))
+            tags$td(textOutput(paste0("textTableRumbaAppsStateTd", i), inline=TRUE)),
+            tags$td(textOutput(paste0("textTableRumbaAppsWorkerCountTd", i), inline=TRUE)),
+            tags$td(textOutput(paste0("textTableRumbaAppsMemoryTd", i), inline=TRUE))
           )})
       )
     )
   })
 
-  uiTableRumbaAppsResourceColumns = list(
+  uiTableRumbaAppsStateColumns = list(
     State = function(app){app$state},
-    WorkerCount = function(app){paste0(app$activeWorkerCount(), "/", app$options$workerCount)},
+    WorkerCount = function(app){paste0(app$activeWorkerCount(), "/", app$options$workerCount)}
+  )
+
+  for(c in names(uiTableRumbaAppsStateColumns)){
+    for (i in 1:(rumba_options$maxAppsUIElements)) {
+      local({
+        j <- i
+        d <- c
+
+        output[[paste0("textTableRumbaApps", d, "Td", i)]] <- renderText({
+          uiTableRumbaAppsStateColumns[[d]](rumba_apps_with_tick_and_state()[[j]])
+        })
+      })
+    }
+  }
+
+
+  uiTableRumbaAppsResourceColumns = list(
     Memory = function(app){app$getRSS() %>% utils:::format.object_size(units="auto", standard = "IEC", digits=0L)}
   )
 
@@ -75,7 +105,7 @@ server <- function(input, output, session){
         d <- c
 
         output[[paste0("textTableRumbaApps", d, "Td", i)]] <- renderText({
-          uiTableRumbaAppsResourceColumns[[d]](rumba_apps_with_tick_and_resources()[[j]])
+          uiTableRumbaAppsResourceColumns[[d]](rumba_apps_with_resources()[[j]])
         })
       })
     }
@@ -124,10 +154,16 @@ server <- function(input, output, session){
     rumba_apps()[[as.integer(input$selectApp)]]
   })
 
-  selectedRumbaAppWithTickAndResources <- reactive({
-    req(rumba_apps_with_tick_and_resources())
+  selectedRumbaAppWithTickAndState <- reactive({
+    req(rumba_apps_with_tick_and_state())
     req(input$selectApp)
-    rumba_apps_with_tick_and_resources()[[as.integer(input$selectApp)]]
+    rumba_apps_with_tick_and_state()[[as.integer(input$selectApp)]]
+  })
+
+  selectedRumbaAppWithResources <- reactive({
+    req(rumba_apps_with_resources())
+    req(input$selectApp)
+    rumba_apps_with_resources()[[as.integer(input$selectApp)]]
   })
 
   output$uiSelectedApp <- renderUI({
@@ -145,7 +181,7 @@ server <- function(input, output, session){
   })
 
   output$uiSelectedAppInvalidError <- renderUI({
-    if(selectedRumbaAppWithTickAndResources()$state != "invalid"){
+    if(selectedRumbaAppWithTickAndState()$state != "invalid"){
       return(NULL)
     }
 
@@ -168,22 +204,22 @@ server <- function(input, output, session){
 
       err$message
 
-    })(selectedRumbaAppWithTickAndResources()$invalidError))
+    })(selectedRumbaAppWithTickAndState()$invalidError))
 
   })
 
   observeEvent(input$buttonStartApp, {
-    req(selectedRumbaAppWithTickAndResources())
-    selectedRumbaAppWithTickAndResources()$start()
+    req(selectedRumbaAppWithTickAndState())
+    selectedRumbaAppWithTickAndState()$start()
   })
 
   observeEvent(input$buttonStopApp, {
-    req(selectedRumbaAppWithTickAndResources())
-    selectedRumbaAppWithTickAndResources()$stop()
+    req(selectedRumbaAppWithTickAndState())
+    selectedRumbaAppWithTickAndState()$stop()
   })
 
   output$tableSelectedAppRumbaWorkers <- renderTable({
-    ws <- selectedRumbaAppWithTickAndResources()$workers
+    ws <- selectedRumbaAppWithResources()$workers
 
     tibble(
       Idx = ws %>% map_chr(~.x$workerIndex) %>% as.integer(),
