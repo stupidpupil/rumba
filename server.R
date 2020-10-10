@@ -87,7 +87,8 @@ server <- function(input, output, session){
         d <- c
 
         output[[paste0("textTableRumbaApps", d, "Td", i)]] <- renderUI({
-          req(rumba_apps_with_tick_and_state()[[j]])
+          req(rumba_apps_with_tick_and_state())
+          if(length(rumba_apps_with_tick_and_state()) < j){return("")}
           uiTableRumbaAppsStateColumns[[d]](rumba_apps_with_tick_and_state()[[j]])
         })
       })
@@ -106,7 +107,8 @@ server <- function(input, output, session){
         d <- c
 
         output[[paste0("textTableRumbaApps", d, "Td", i)]] <- renderUI({
-          req(rumba_apps_with_resources()[[j]])
+          req(rumba_apps_with_resources())
+          if(length(rumba_apps_with_resources()) < j){return("")}
           uiTableRumbaAppsResourceColumns[[d]](rumba_apps_with_resources()[[j]])
         })
       })
@@ -256,7 +258,8 @@ server <- function(input, output, session){
         d <- c
 
         output[[paste0("textTableSelectedAppRumbaWorkers", d, "Td", i)]] <- renderUI({
-          req(selectedRumbaAppWithTickAndState()$workers[[j]])
+          req(selectedRumbaAppWithTickAndState())
+          if(length(selectedRumbaAppWithTickAndState()$workers) < j){return("")}
           uiTableSelectedAppRumbaWorkersStateColumns[[d]](selectedRumbaAppWithTickAndState()$workers[[j]])
         })
       })
@@ -278,7 +281,8 @@ server <- function(input, output, session){
         d <- c
 
         output[[paste0("textTableSelectedAppRumbaWorkers", d, "Td", i)]] <- renderUI({
-          req(selectedRumbaAppWithResources()$workers[[j]])
+          req(selectedRumbaAppWithResources())
+          if(length(selectedRumbaAppWithResources()$workers) < j){return("")}
           uiSelectedAppRumbaWorkersResourceColumns[[d]](selectedRumbaAppWithResources()$workers[[j]])
         })
       })
