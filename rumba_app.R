@@ -43,7 +43,13 @@ RumbaApp <- R6Class("RumbaApp", list(
 
       configPath <- paste0(self$appDir, "/rumba.yml")
       if(file.exists(configPath)){
-        self$options <- modifyList(self$options, yaml.load_file(configPath))
+        configYaml <- yaml.load_file(configPath)
+
+        if(is.null(configYaml)){
+          configYaml <- list()
+        }
+
+        self$options <- modifyList(self$options, configYaml)
       }
 
       self$options <- modifyList(self$options, self$argumentOptions)
