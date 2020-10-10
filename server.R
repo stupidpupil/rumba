@@ -41,7 +41,7 @@ server <- function(input, output, session){
       list(
         state = rumba_apps_unreactive %>% map(~.x$state),
         active_workers = rumba_apps_unreactive %>% map(~.x$activeWorkerCount()),
-        mem = rumba_apps_unreactive  %>% map(~.x$getRSS())
+        mem = rumba_apps_unreactive  %>% map_int(~.x$getRSS()) %>% signif(5)
       )
     },
 
