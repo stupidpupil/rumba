@@ -8,11 +8,11 @@ server <- function(input, output, session){
       }
       
       list(
-        dirs = rumba_apps_unreactive %>% map_chr(~.x$appDir),
+        dirs = rumba_apps_unreactive %>% map(~.x$appDir),
         options = rumba_apps_unreactive %>% map(~.x$options),
-        active_workers = rumba_apps_unreactive %>% map_chr(~.x$activeWorkerCount()),
-        state = rumba_apps_unreactive %>% map_chr(~.x$state),
-        mem = rumba_apps_unreactive  %>% map_chr(~.x$getRSS())
+        state = rumba_apps_unreactive %>% map(~.x$state),
+        active_workers = rumba_apps_unreactive %>% map(~.x$activeWorkerCount()),
+        mem = rumba_apps_unreactive  %>% map(~.x$getRSS())
       )
     },
 
@@ -22,13 +22,13 @@ server <- function(input, output, session){
 
   )
 
-  # Won't react to changing state or memory etc
+  # Won't react to changing resources
   # but will react to changing config
   rumba_apps_without_tick <- reactivePoll(500, NULL,
 
     checkFunc = function(){
       list(
-        dirs = rumba_apps_unreactive %>% map_chr(~.x$appDir),
+        dirs = rumba_apps_unreactive %>% map(~.x$appDir),
         options = rumba_apps_unreactive %>% map(~.x$options)
       )
     },
@@ -36,26 +36,55 @@ server <- function(input, output, session){
     valueFunc = function(){
       rumba_apps_unreactive
     }
-
   )
 
+  output$uiTableRumbaApps <- renderUI({
+    tags$table(class="table shiny-table table- spacing-s", style="width:100%",
+      tags$thead(
+        tags$tr(
+          tags$th("Name"),
+          tags$th("Web Path"),
+          tags$th("State"),
+          tags$th("Workers"),
+          tags$th("Memory")
+        )
+      ),
 
-
-  output$tableRumbaApps <- renderTable({
-
-    apps <- rumba_apps()
-
-    tibble(
-      Name = apps %>% map_chr(~.x$name),
-      `Base Port` = apps %>% map_chr(~.x$options$basePort) %>% as.integer(),
-      Workers = paste0(
-        apps %>% map_chr(~.x$activeWorkerCount()), "/",
-        apps %>% map_chr(~.x$options$workerCount)),
-      State = apps %>% map_chr(~.x$state),
-      Memory = apps %>% map_chr(function(x){x$getRSS() %>% utils:::format.object_size(units="auto", standard = "IEC")})
+      tags$tbody(
+        rumba_apps_without_tick() %>% imap(function(app, i){
+          tags$tr(
+            tags$td(app$name),
+            tags$td(app$options$webPath),
+            tags$td(textOutput(paste0("textTableRumbaAppsStateTd", i))),
+            tags$td(textOutput(paste0("textTableRumbaAppsWorkerCountTd", i))),
+            tags$td(textOutput(paste0("textTableRumbaAppsMemoryTd", i)))
+          )})
+      )
     )
-  }, width="100%")
+  })
 
+  uiTableRumbaAppsResourceColumns = list(
+    State = function(app){app$state},
+    WorkerCount = function(app){paste0(app$activeWorkerCount(), "/", app$options$workerCount)},
+    Memory = function(app){app$getRSS() %>% utils:::format.object_size(units="auto", standard = "IEC", digits=0L)}
+  )
+
+  for(c in names(uiTableRumbaAppsResourceColumns)){
+    for (i in 1:(rumba_options$maxAppsUIElements)) {
+      local({
+        j <- i
+        d <- c
+
+        output[[paste0("textTableRumbaApps", d, "Td", i)]] <- renderText({
+          uiTableRumbaAppsResourceColumns[[d]](rumba_apps()[[j]])
+        })
+      })
+    }
+  }
+
+  #
+  # Global actions
+  #
 
   observeEvent(input$buttonStartAllApps, {
     for (app in rumba_apps()) {

@@ -14,7 +14,7 @@ dashboardPage(
         actionButton("buttonStartAllApps", "Start All Apps"),
         actionButton("buttonStopAllApps", "Stop All Apps"),
 
-        tableOutput("tableRumbaApps")
+        uiOutput("uiTableRumbaApps")
       ),
       box(width=4,
         selectInput("selectApp", "App", choices=c()),

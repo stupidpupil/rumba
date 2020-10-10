@@ -16,7 +16,8 @@ rumba_options <- list(
   iisApplicationHostConfig = "C:/Windows/system32/inetsrv/config/applicationHost.config",
   iisWebConfig = "C:/inetpub/wwwroot/web.config",
   appsDir = "apps",
-  webPrefix = "http://localhost/"
+  webPrefix = "http://localhost/",
+  maxAppsUIElements = 100L
 )
 
 if(file.exists("config.yml")){
