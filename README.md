@@ -13,6 +13,7 @@ For each R Shiny app it handles:
 Each app directory must contain a *rumba.yml* file that, at a minimum, defines a webPath.
 
 ```yaml
+# an example rumba.yml file
 webPath: my_cool_app
 
 ```
