@@ -15,6 +15,8 @@ RumbaApp <- R6Class("RumbaApp", list(
 
   workers = list(),
   state = "stopped",
+  invalidError = NULL,
+
   name = NULL,
 
   initialize = function(appDir, ...){
@@ -49,6 +51,7 @@ RumbaApp <- R6Class("RumbaApp", list(
     error = function(err){
       print(err)
       self$options$workerCount = 0L
+      invalidError <- err
       self$state <- "invalid"
     }
 
