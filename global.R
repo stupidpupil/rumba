@@ -31,6 +31,11 @@ rumba_iis_web_config$removeAllRumbaRewriteRules()
 rumba_apps_unreactive <- list()
 
 scan_for_rumba_apps <- function(){
+
+  for (a in rumba_apps_unreactive) {
+    a$reloadOptions() # This will just be ignored by any apps not in the right state
+  }
+
   existingAppDirs <- rumba_apps_unreactive %>% map_chr(~.x$appDir)
 
   candidates <- Sys.glob(paste0(rumba_options$appsDir, "/*/rumba.yml")) %>% str_sub(1, -11)

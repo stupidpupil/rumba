@@ -25,27 +25,10 @@ RumbaApp <- R6Class("RumbaApp", list(
     self$appDir = appDir
 
     tryCatch({
-      stopifnot(file.exists(appDir))
-
-      self$options <- self$defaultOptions
-
-      configPath <- paste0(appDir, "/rumba.yml")
-      if(file.exists(configPath)){
-        self$options <- modifyList(self$options, yaml.load_file(configPath))
-      }
 
       self$argumentOptions <- list(...)
 
-      self$options <- modifyList(self$options, self$argumentOptions)
-
-      print(self$options$webPath)
-
-      stopifnot(is.numeric(self$options$workerCount), self$options$workerCount %in% 1:100)
-      stopifnot(is.numeric(self$options$basePort), self$options$basePort %in% 5001:12001)
-      stopifnot(is.character(self$options$webPath), grepl("^[a-z0-9_]+$", self$options$webPath))
-
-      self$initializeWorkers()
-
+      self$reloadOptions()
     },
 
     error = function(err){
@@ -56,6 +39,48 @@ RumbaApp <- R6Class("RumbaApp", list(
     }
 
     )
+  },
+
+  reloadOptions = function(){
+
+    if(!(self$state %in% c("stopped", "invalid"))){
+      return(FALSE)
+    }
+
+
+    tryCatch({
+      stopifnot(file.exists(self$appDir))
+
+      self$options <- self$defaultOptions
+
+      configPath <- paste0(self$appDir, "/rumba.yml")
+      if(file.exists(configPath)){
+        self$options <- modifyList(self$options, yaml.load_file(configPath))
+      }
+
+      self$options <- modifyList(self$options, self$argumentOptions)
+
+      print(self$options)
+
+      stopifnot(is.numeric(self$options$workerCount), self$options$workerCount %in% 1:100)
+      stopifnot(is.numeric(self$options$basePort), self$options$basePort %in% 5001:12001)
+      stopifnot(is.character(self$options$webPath), grepl("^[a-z0-9_]+$", self$options$webPath))
+
+      self$state <- "stopped"
+
+      self$initializeWorkers()
+    },
+
+    error = function(err){
+      print(err)
+      self$options$workerCount = 0L
+      invalidError <- err
+      self$state <- "invalid"
+    }
+
+    )
+
+    return(TRUE)
   },
 
   initializeWorkers = function(){

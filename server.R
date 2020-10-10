@@ -15,6 +15,7 @@ server <- function(input, output, session){
       
       list(
         dirs = rumba_apps_unreactive %>% map_chr(~.x$appDir),
+        options = rumba_apps_unreactive %>% map(~.x$options),
         active_workers = rumba_apps_unreactive %>% map_chr(~.x$activeWorkerCount()),
         state = rumba_apps_unreactive %>% map_chr(~.x$state),
         mem = rumba_apps_unreactive  %>% map_chr(~.x$getRSS())
@@ -34,8 +35,7 @@ server <- function(input, output, session){
     checkFunc = function(){
       list(
         dirs = rumba_apps_unreactive %>% map_chr(~.x$appDir),
-        basePort = rumba_apps_unreactive %>% map_chr(~.x$options$basePort),
-        workerCount = rumba_apps_unreactive %>% map_chr(~.x$options$workerCount)
+        options = rumba_apps_unreactive %>% map(~.x$options)
       )
     },
 
