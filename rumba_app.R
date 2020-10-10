@@ -124,6 +124,8 @@ RumbaApp <- R6Class("RumbaApp", list(
       return(FALSE)
     }
 
+    self$state <- "starting"
+
     tryCatch({
       for (w in self$workers) {
         w$start()
@@ -148,7 +150,6 @@ RumbaApp <- R6Class("RumbaApp", list(
       return(FALSE)
     }
 
-    self$state <- "started"
     return(TRUE)
   },
 
@@ -157,6 +158,8 @@ RumbaApp <- R6Class("RumbaApp", list(
     if(!(self$state %in% c("started", "starting", "stopping", "failed"))){
       return(FALSE)
     }
+
+    self$state <- "stopping"
 
     tryCatch({
       rumba_iis_web_config$removeRewriteRuleForRumbaApp(self)
@@ -169,7 +172,6 @@ RumbaApp <- R6Class("RumbaApp", list(
       w$stop()
     }
 
-    self$state <- "stopped"
     return(TRUE)
   },
 
@@ -193,12 +195,26 @@ RumbaApp <- R6Class("RumbaApp", list(
 
     for (w in self$workers) {
       w$tick()
-
-      if(w$state == "failed"){
-        self$state <- "failed"
-      }
-
     }
+
+    wstates <- sapply(self$workers, function(w){w$state})
+
+    if(self$state == "starting"){
+      if(all(wstates == "started")){
+        self$state <- "started"
+      }
+    }
+
+    if(self$state == "stopping"){
+      if(all(wstates == "stopped")){
+        self$state <- "stopped"
+      }
+    }
+
+    if(any(wstates == "failed")){
+      self$state <- "failed"
+    }
+
   }
 
   #,finalize = function(){
