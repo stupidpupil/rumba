@@ -48,7 +48,7 @@ RumbaApp <- R6Class("RumbaApp", list(
 
     error = function(err){
       print(err)
-      self$options$workerCount = 0
+      self$options$workerCount = 0L
       self$state <- "invalid"
     }
 
