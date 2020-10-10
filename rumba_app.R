@@ -36,9 +36,11 @@ RumbaApp <- R6Class("RumbaApp", list(
 
       self$options <- modifyList(self$options, self$argumentOptions)
 
+      print(self$options$webPath)
+
       stopifnot(is.numeric(self$options$workerCount), self$options$workerCount %in% 1:100)
       stopifnot(is.numeric(self$options$basePort), self$options$basePort %in% 5001:12001)
-
+      stopifnot(is.character(self$options$webPath), grepl("^[a-z0-9_]+$", self$options$webPath))
 
       self$initializeWorkers()
 
@@ -100,9 +102,11 @@ RumbaApp <- R6Class("RumbaApp", list(
       }
 
       rumba_iis_application_host_config$insertOrUpdateWebFarmForRumbaApp(self)
+      rumba_iis_web_config$insertOrUpdateRewriteRuleForRumbaApp(self)
 
     },
       error = function(err){
+        print(err)
         self$state <- "failed"
       }
     )
@@ -122,9 +126,10 @@ RumbaApp <- R6Class("RumbaApp", list(
     }
 
     tryCatch({
+      rumba_iis_web_config$removeRewriteRuleForRumbaApp(self)
       rumba_iis_application_host_config$removeWebFarmForRumbaApp(self)
     },
-      error = function(err){}
+      error = function(err){print(err)}
     )
 
     for (w in self$workers) {

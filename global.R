@@ -1,6 +1,7 @@
 library(tidyverse)
 
 source("rumba_iis_application_host_config.R")
+source("rumba_iis_web_config.R")
 
 source("rumba_worker.R")
 source("rumba_app.R")
@@ -9,6 +10,12 @@ rumba_iis_application_host_config <-
   RumbaIISApplicationHostConfig$new("example/iis_configs/applicationHost.config")
 
 rumba_iis_application_host_config$removeAllRumbaWebFarms()
+
+
+rumba_iis_web_config <-
+  RumbaIISWebConfig$new("example/iis_configs/web.config")
+
+rumba_iis_web_config$removeAllRumbaRewriteRules()
 
 rumba_apps_dir <- "./example/apps"
 
