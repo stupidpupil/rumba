@@ -8,6 +8,12 @@ For each R Shiny app it handles:
 2) Defining and destroying an IIS *Web Farm* containing those R workers.
 3) Creating and removing an IIS *Application Request Routing* rewrite rule for a site to point a path at that web farm.
 
+## Requirements
+
+- R and certain packages (tested with R 4.0)
+- Microsoft IIS 7 or later (tested with IIS 10.0)
+- IIS [Application Request Routing](https://www.iis.net/downloads/microsoft/application-request-routing) 3.0 or later
+
 ## rumba.yml - per app config
 
 Each app directory must contain a *rumba.yml* file that, at a minimum, defines a webPath.
@@ -32,3 +38,12 @@ webPath: my_cool_app
 | iisApplicationHostConfig | C:/Windows/system32/inetsrv/config/applicationHost.config | The IIS configuration file that Rumba will try to define Web Farms in.                                               |
 | iisWebConfig             | C:/inetpub/wwwroot/web.config                             | The IIS site configuration file that Rumba will try to define ARR rewrite rules in.                                  |
 | appsDir                  | apps                                                      | Where Rumba will look for app directories. Each app directory must contain a valid rumba.yml file, as described above. |
+
+
+## Alternatives
+
+Assuming you're looking for some way to easily configure and run a bunch of R Shiny apps on your own webserver, with some control over scaling:
+
+- If you're able to setup Docker and Java, then [ShinyProxy](https://www.shinyproxy.io/).
+
+- If you have at least $15,000 then [RStudio Connect](https://rstudio.com/pricing/#connect).
