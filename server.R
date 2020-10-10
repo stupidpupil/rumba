@@ -67,16 +67,16 @@ server <- function(input, output, session){
           tags$tr(
             tags$td(app$name),
             tags$td(app$options$webPath),
-            tags$td(textOutput(paste0("textTableRumbaAppsStateTd", i), inline=TRUE)),
-            tags$td(textOutput(paste0("textTableRumbaAppsWorkerCountTd", i), inline=TRUE)),
-            tags$td(textOutput(paste0("textTableRumbaAppsMemoryTd", i), inline=TRUE))
+            tags$td(uiOutput(paste0("textTableRumbaAppsStateTd", i), inline=TRUE)),
+            tags$td(uiOutput(paste0("textTableRumbaAppsWorkerCountTd", i), inline=TRUE)),
+            tags$td(uiOutput(paste0("textTableRumbaAppsMemoryTd", i), inline=TRUE))
           )})
       )
     )
   })
 
   uiTableRumbaAppsStateColumns = list(
-    State = function(app){app$state},
+    State = function(app){tags$span(class=paste0("rumba-state ", app$state), app$state)},
     WorkerCount = function(app){paste0(app$activeWorkerCount(), "/", app$options$workerCount)}
   )
 
@@ -86,7 +86,8 @@ server <- function(input, output, session){
         j <- i
         d <- c
 
-        output[[paste0("textTableRumbaApps", d, "Td", i)]] <- renderText({
+        output[[paste0("textTableRumbaApps", d, "Td", i)]] <- renderUI({
+          req(rumba_apps_with_tick_and_state()[[j]])
           uiTableRumbaAppsStateColumns[[d]](rumba_apps_with_tick_and_state()[[j]])
         })
       })
@@ -104,7 +105,8 @@ server <- function(input, output, session){
         j <- i
         d <- c
 
-        output[[paste0("textTableRumbaApps", d, "Td", i)]] <- renderText({
+        output[[paste0("textTableRumbaApps", d, "Td", i)]] <- renderUI({
+          req(rumba_apps_with_resources()[[j]])
           uiTableRumbaAppsResourceColumns[[d]](rumba_apps_with_resources()[[j]])
         })
       })
