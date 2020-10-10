@@ -33,7 +33,7 @@ RumbaIISWebConfig <- R6Class("RumbaIISWebConfig", list(
 
     doc <- xml_new_root("rule", name=self$rewriteRuleNameForRumbaApp(app), stopProcessing="true")
 
-    xml_add_child(doc, "match", url=paste0(app$options$webPath, "/(.*)"))
+    xml_add_child(doc, "match", url=paste0("^", app$options$webPath, "/(.*)"))
     xml_add_child(doc, "conditions", logicalGrouping="MatchAll", trackAllCaptures="false")
 
     webFarmName <- rumba_iis_application_host_config$webFarmNameForRumbaApp(app)
