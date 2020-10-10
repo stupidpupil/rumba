@@ -1,4 +1,6 @@
 library(tidyverse)
+library(yaml)
+
 
 source("rumba_iis_application_host_config.R")
 source("rumba_iis_web_config.R")
@@ -6,25 +8,31 @@ source("rumba_iis_web_config.R")
 source("rumba_worker.R")
 source("rumba_app.R")
 
-rumba_iis_application_host_config <- 
-  RumbaIISApplicationHostConfig$new("example/iis_configs/applicationHost.config")
 
+rumba_options <- list(
+  iisApplicationHostConfig = "C:/Windows/system32/inetsrv/config/applicationHost.config",
+  iisWebConfig = "C:/inetpub/wwwroot/web.config",
+  appsDir = "apps"
+)
+
+if(file.exists("config.yml")){
+  rumba_options <- modifyList(rumba_options, yaml.load_file("config.yml"))
+}
+
+rumba_iis_application_host_config <- 
+  RumbaIISApplicationHostConfig$new(rumba_options$iisApplicationHostConfig)
 rumba_iis_application_host_config$removeAllRumbaWebFarms()
 
-
 rumba_iis_web_config <-
-  RumbaIISWebConfig$new("example/iis_configs/web.config")
-
+  RumbaIISWebConfig$new(rumba_options$iisWebConfig)
 rumba_iis_web_config$removeAllRumbaRewriteRules()
-
-rumba_apps_dir <- "./example/apps"
 
 rumba_apps_unreactive <- list()
 
 scan_for_rumba_apps <- function(){
   existingAppDirs <- rumba_apps_unreactive %>% map_chr(~.x$appDir)
 
-  candidates <- Sys.glob(paste0(rumba_apps_dir, "/*/rumba.yml")) %>% str_sub(1, -11)
+  candidates <- Sys.glob(paste0(rumba_options$appsDir, "/*/rumba.yml")) %>% str_sub(1, -11)
 
   candidates <- setdiff(candidates, existingAppDirs)
 
