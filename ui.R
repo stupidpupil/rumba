@@ -25,7 +25,8 @@ dashboardPage(
         actionButton("buttonStartApp", "Start"),
         actionButton("buttonStopApp", "Stop"),
 
-        tableOutput("tableSelectedAppRumbaWorkers")
+        uiOutput("uiTableSelectedAppRumbaWorkers")
+
       ),
 
       box(width=4,

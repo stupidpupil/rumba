@@ -220,17 +220,71 @@ server <- function(input, output, session){
     selectedRumbaAppWithTickAndState()$stop()
   })
 
-  output$tableSelectedAppRumbaWorkers <- renderTable({
-    ws <- selectedRumbaAppWithResources()$workers
 
-    tibble(
-      Idx = ws %>% map_chr(~.x$workerIndex) %>% as.integer(),
-      Host = ws %>% map_chr(~.x$getHost()),
-      Port = ws %>% map_chr(~.x$getPort()) %>% as.integer(),
-      State = ws %>% map_chr(~.x$state),
-      Mem = ws %>% map_int(~.x$getRSS())
+  output$uiTableSelectedAppRumbaWorkers <- renderUI({
+    tags$table(class="table shiny-table table- spacing-s", style="width:100%",
+      tags$thead(
+        tags$tr(
+          tags$th("Host"),
+          tags$th("Port"),
+          tags$th("State"),
+          tags$th("Memory")
+        )
+      ),
+
+      tags$tbody(
+        selectedRumbaApp()$workers %>% imap(function(w, i){
+          tags$tr(
+            tags$td(class="rumba-host", w$getHost()),
+            tags$td(class="rumba-port", w$getPort()),
+            tags$td(uiOutput(paste0("textTableSelectedAppRumbaWorkersStateTd", i), inline=TRUE)),
+            tags$td(uiOutput(paste0("textTableSelectedAppRumbaWorkersMemoryTd", i), inline=TRUE))
+          )})
+      )
     )
-  }, width="100%")
+  })
+
+
+  uiTableSelectedAppRumbaWorkersStateColumns = list(
+    State = function(w){tags$span(class=paste0("rumba-state ", w$state), w$state)}
+  )
+
+  for(c in names(uiTableSelectedAppRumbaWorkersStateColumns)){
+    for (i in 1:10) {
+      local({
+        j <- i
+        d <- c
+
+        output[[paste0("textTableSelectedAppRumbaWorkers", d, "Td", i)]] <- renderUI({
+          req(selectedRumbaAppWithTickAndState()$workers[[j]])
+          uiTableSelectedAppRumbaWorkersStateColumns[[d]](selectedRumbaAppWithTickAndState()$workers[[j]])
+        })
+      })
+    }
+  }
+
+
+  uiSelectedAppRumbaWorkersResourceColumns = list(
+    Memory = function(w){
+      rss <- w$getRSS()
+      if(is.na(rss)){return("")}
+      rss %>% utils:::format.object_size(units="auto", standard = "IEC", digits=0L)}
+  )
+
+  for(c in names(uiSelectedAppRumbaWorkersResourceColumns)){
+    for (i in 1:10) {
+      local({
+        j <- i
+        d <- c
+
+        output[[paste0("textTableSelectedAppRumbaWorkers", d, "Td", i)]] <- renderUI({
+          req(selectedRumbaAppWithResources()$workers[[j]])
+          uiSelectedAppRumbaWorkersResourceColumns[[d]](selectedRumbaAppWithResources()$workers[[j]])
+        })
+      })
+    }
+  }
+
 
   #
   # Selected worker

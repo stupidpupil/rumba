@@ -41,6 +41,9 @@
   font-weight: bold;
 }
 
+.rumba-host, .rumba-port{
+  font-family: "Consolas", monospace;
+}
 
 
 #uiSelectedApp{
@@ -57,11 +60,5 @@
   color: #550000;
   padding: 0.2em;
   border-radius: 0.1em;
-}
-
-#tableSelectedAppRumbaWorkers tr td:nth-child(2),
-#tableSelectedAppRumbaWorkers tr td:nth-child(3)
-{
-  font-family: "Consolas", monospace;
 }
 
