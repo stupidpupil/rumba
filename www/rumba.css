@@ -1,0 +1,18 @@
+#selectedAppName, #selectedAppDir{
+  text-align: center;
+}
+
+#selectedAppDir{
+  font-family: "Consolas", monospace;
+}
+
+#tableSelectedAppRumbaWorkers tr td:nth-child(2),
+#tableSelectedAppRumbaWorkers tr td:nth-child(3)
+{
+  font-family: "Consolas", monospace;
+}
+
+#tableRumbaApps tr td:nth-child(2)
+{
+  font-family: "Consolas", monospace;
+}
