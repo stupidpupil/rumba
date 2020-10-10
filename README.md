@@ -19,7 +19,7 @@ webPath: my_cool_app
 
 | Setting     | Example     | Default | Description                                                                                                                                                                                                       |
 |-------------|-------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| webPath     | my_cool_app |         | The URL path that will be used for the app. This example might route "https://example.com/my_cool_app" to the R app. Must be set. Can only include lowercase letters (a-z), numbers (0-9) and underscores (_). |
+| webPath     | my_cool_app |         | The URL path that will be used for the app. This example might route "https://example.com/my_cool_app" to the R app. Must be set. Can only include lowercase letters (a-z), numbers (0-9) and underscores (\_). |
 | workerCount | 5           | 2       | The number of R workers to start for this app. Must be between 1 and 9.                                                                                                                                           |
 | basePort    | 5001        | Dynamic | The start of local port range that the R workers will use. Must be in 5001-6999. If you don't explicitly set a port, then your application will be allocated a range in 7001-12001                                                  |
 
@@ -30,4 +30,4 @@ webPath: my_cool_app
 |--------------------------|-----------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
 | iisApplicationHostConfig | C:/Windows/system32/inetsrv/config/applicationHost.config | The IIS configuration file that Rumba will try to define Web Farms in.                                               |
 | iisWebConfig             | C:/inetpub/wwwroot/web.config                             | The IIS site configuration file that Rumba will try to define ARR rewrite rules in.                                  |
-| appsDir                  | apps                                                      | Where Rumba will look for app directories. An app directory must contain a valid rumba.yml file, as described above. |
+| appsDir                  | apps                                                      | Where Rumba will look for app directories. Each app directory must contain a valid rumba.yml file, as described above. |
