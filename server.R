@@ -110,8 +110,15 @@ server <- function(input, output, session){
 
   output$uiSelectedApp <- renderUI({
     div(
-      h2(id="selectedAppName", selectedRumbaApp()$name),
-      p(id="selectedAppDir", normalizePath(selectedRumbaApp()$appDir))
+      h2(id="selectedAppName", selectedRumbaAppWithoutTick()$name),
+      p(id="selectedAppDir", normalizePath(selectedRumbaAppWithoutTick()$appDir)),
+      p(
+        a(id="selectedAppWebPath", 
+          href=paste0(rumba_options$webPrefix, selectedRumbaAppWithoutTick()$options$webPath),
+          target="_blank",
+          selectedRumbaAppWithoutTick()$options$webPath
+          )
+      )
     )
   })
 
