@@ -107,8 +107,6 @@ RumbaIISWebConfig <- R6Class("RumbaIISWebConfig", list(
 
     doc <- self$webConfigDoc()
 
-    print(doc)
-
     xPath = paste0("/configuration/system.webServer/rewrite/rules/rule[starts-with(@name,'", self$rumbaRewriteRulePrefix,"')]")
 
     nodeSet <- xml_find_all(doc, xPath)

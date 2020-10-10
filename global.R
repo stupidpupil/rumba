@@ -4,7 +4,7 @@ library(yaml)
 library(shiny)
 library(shinydashboard)
 
-
+source("rumba_port_allocator.R")
 source("rumba_iis_application_host_config.R")
 source("rumba_iis_web_config.R")
 
@@ -22,6 +22,8 @@ rumba_options <- list(
 if(file.exists("config.yml")){
   rumba_options <- modifyList(rumba_options, yaml.load_file("config.yml"))
 }
+
+rumba_port_allocator <- RumbaPortAllocator$new()
 
 rumba_iis_application_host_config <- 
   RumbaIISApplicationHostConfig$new(rumba_options$iisApplicationHostConfig)

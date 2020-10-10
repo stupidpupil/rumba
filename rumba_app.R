@@ -48,9 +48,17 @@ RumbaApp <- R6Class("RumbaApp", list(
 
       self$options <- modifyList(self$options, self$argumentOptions)
 
-      stopifnot(is.numeric(self$options$workerCount), self$options$workerCount %in% 1:100)
-      stopifnot(is.numeric(self$options$basePort), self$options$basePort %in% 5001:12001)
+      stopifnot(is.numeric(self$options$workerCount), self$options$workerCount %in% 1:9)
       stopifnot(is.character(self$options$webPath), grepl("^[a-z0-9_]+$", self$options$webPath))
+
+      if(!is.na(self$options$basePort)){
+        stopifnot(is.numeric(self$options$basePort), self$options$basePort %in% 5001:6999)
+      }else{
+        self$options$basePort <- rumba_port_allocator$getDynamicBasePort(self$options$workerCount)
+      }
+
+      portRange <- self$options$basePort:(self$options$basePort + self$options$workerCount - 1)
+      rumba_port_allocator$stopIfPortsAreNotFree(portRange)
 
       self$invalidError <- NULL
       self$state <- "stopped"
@@ -98,6 +106,10 @@ RumbaApp <- R6Class("RumbaApp", list(
     }
 
     return(i)
+  },
+
+  getClaimedPorts = function(){
+    sapply(self$workers, function(w){w$getPort()})
   },
 
   start = function(){
