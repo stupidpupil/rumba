@@ -16,14 +16,14 @@ RumbaPortAllocator <- R6Class("RumbaPortAllocator", list(
   },
 
   getDynamicBasePort = function(workerCount = 1){
-    dynamicBasePorts <- Filter(function(x){x %% 10 == 1}, dynamicPortRange)
+    dynamicBasePorts <- Filter(function(x){x %% 10 == 1}, self$dynamicPortRange)
 
     claimedPorts <- self$getClaimedPorts()
 
     filterFunction <- function(basePort){
       desiredRange <- basePort:(basePort + workerCount - 1)
 
-      if(length(intersect(desiredRange, dynamicPortRange)) != workerCount){
+      if(length(intersect(desiredRange, self$dynamicPortRange)) != workerCount){
         return(FALSE)
       }
 
