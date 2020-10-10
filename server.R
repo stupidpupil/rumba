@@ -1,9 +1,3 @@
-library(shiny)
-library(shinydashboard)
-
-library(future)
-library(promises)
-
 server <- function(input, output, session){
 
   rumba_apps <- reactivePoll(1000, NULL,
@@ -120,6 +114,34 @@ server <- function(input, output, session){
           )
       )
     )
+  })
+
+  output$uiSelectedAppInvalidError <- renderUI({
+    if(selectedRumbaApp()$state != "invalid"){
+      return(NULL)
+    }
+
+    p((function(err){
+
+      if(is.null(err)){
+        return("Unknown error")
+      }
+
+      if(is.null(err$message)){
+        return("Unknown error")
+      }
+
+      if(err$message %>% str_detect("self\\$options\\$")){
+        return(paste0(
+          "Config error: ",
+          err$message %>% str_replace_all("self\\$options\\$", ""))
+        )
+      }
+
+      err$message
+
+    })(selectedRumbaApp()$invalidError))
+
   })
 
   observeEvent(input$buttonStartApp, {

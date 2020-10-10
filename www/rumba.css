@@ -1,9 +1,17 @@
-#selectedAppName, #selectedAppDir{
+#uiSelectedApp{
   text-align: center;
 }
 
 #selectedAppDir{
   font-family: "Consolas", monospace;
+}
+
+#uiSelectedAppInvalidError p{
+  text-align: center;
+  background-color: #700000;
+  color: white;
+  padding: 0.2em;
+  border-radius: 0.1em;
 }
 
 #tableSelectedAppRumbaWorkers tr td:nth-child(2),

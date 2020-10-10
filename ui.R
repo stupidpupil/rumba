@@ -1,6 +1,3 @@
-library(shiny)
-library(shinydashboard)
-
 dashboardPage(
   dashboardHeader(title =  "Rumba"),
   dashboardSidebar(collapsed = TRUE),
@@ -22,6 +19,8 @@ dashboardPage(
       box(width=4,
         selectInput("selectApp", "App", choices=c()),
         uiOutput("uiSelectedApp"),
+
+        uiOutput("uiSelectedAppInvalidError"),
 
         actionButton("buttonStartApp", "Start"),
         actionButton("buttonStopApp", "Stop"),

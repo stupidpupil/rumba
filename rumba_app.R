@@ -24,21 +24,10 @@ RumbaApp <- R6Class("RumbaApp", list(
     self$name = basename(appDir)
     self$appDir = appDir
 
-    tryCatch({
+    self$argumentOptions <- list(...)
 
-      self$argumentOptions <- list(...)
+    self$reloadOptions()
 
-      self$reloadOptions()
-    },
-
-    error = function(err){
-      print(err)
-      self$options$workerCount = 0L
-      invalidError <- err
-      self$state <- "invalid"
-    }
-
-    )
   },
 
   reloadOptions = function(){
@@ -46,7 +35,6 @@ RumbaApp <- R6Class("RumbaApp", list(
     if(!(self$state %in% c("stopped", "invalid"))){
       return(FALSE)
     }
-
 
     tryCatch({
       stopifnot(file.exists(self$appDir))
@@ -60,12 +48,11 @@ RumbaApp <- R6Class("RumbaApp", list(
 
       self$options <- modifyList(self$options, self$argumentOptions)
 
-      print(self$options)
-
       stopifnot(is.numeric(self$options$workerCount), self$options$workerCount %in% 1:100)
       stopifnot(is.numeric(self$options$basePort), self$options$basePort %in% 5001:12001)
       stopifnot(is.character(self$options$webPath), grepl("^[a-z0-9_]+$", self$options$webPath))
 
+      self$invalidError <- NULL
       self$state <- "stopped"
 
       self$initializeWorkers()
@@ -74,7 +61,7 @@ RumbaApp <- R6Class("RumbaApp", list(
     error = function(err){
       print(err)
       self$options$workerCount = 0L
-      invalidError <- err
+      self$invalidError <- err
       self$state <- "invalid"
     }
 
