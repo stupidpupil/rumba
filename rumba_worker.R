@@ -11,6 +11,7 @@ RumbaWorker <- R6Class("RumbaWorker", list(
 
   process = NULL,
   state = "stopped",
+  latestLogPath = NULL,
 
   initialize = function(appName, appDir, basePort, workerIndex){
     stopifnot(is.character(appName))
@@ -50,10 +51,6 @@ RumbaWorker <- R6Class("RumbaWorker", list(
     )
   },
 
-  getLogPath = function(){
-    paste0("./logs/", self$appName, " - ", self$getPort(), ".log")
-  },
-
   start = function(){
     if(!(self$state %in% c("stopped", "failed"))){
       return(FALSE)
@@ -68,14 +65,16 @@ RumbaWorker <- R6Class("RumbaWorker", list(
         binPath <- "/opt/local/bin/R" #HACK
       }
 
-      if(file.exists(self$getLogPath())){
-        file.rename(self$getLogPath(), paste0(self$getLogPath(),".old"))
-      }
+
+      logDir <- paste0("./logs/", self$appName, "/", self$workerIndex)
+      dir.create(logDir, recursive = TRUE, showWarnings = TRUE)
+      self$latestLogPath <- paste0(logDir, "/" , format(Sys.time(), "%Y%m%dT%H%M%S", tz="UTC"), " ", self$appName, "-", self$workerIndex, ".log")
+
 
       self$process <- process$new(
         binPath,
         c("-e", self$getRCommand()),
-        stdout=self$getLogPath(),
+        stdout=self$latestLogPath,
         stderr="2>&1",
         supervise=TRUE,
         cleanup_tree=TRUE
@@ -119,13 +118,17 @@ RumbaWorker <- R6Class("RumbaWorker", list(
 
   logHasListening = function(){
 
-    if(!file.exists(self$getLogPath())){
+    if(is.null(self$latestLogPath)){
+      return(FALSE)
+    }
+
+    if(!file.exists(self$latestLogPath)){
       return(FALSE)
     }
 
     lookingFor <- paste0("Listening on http://",self$getHost(),":",self$getPort())
 
-    any(readLines(self$getLogPath()) == lookingFor)
+    any(readLines(self$latestLogPath) == lookingFor)
   },
 
   tick = function(){
