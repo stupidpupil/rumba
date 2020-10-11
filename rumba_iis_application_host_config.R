@@ -140,11 +140,11 @@ RumbaIISApplicationHostConfig <- R6Class("RumbaIISApplicationHostConfig", list(
   },
 
   iisApplicationXPathForRumbaApp = function(app){
-    paste0(self$parentIISSiteXPath(), "/application[@path='", app$options$webPath, "']") 
+    paste0(self$parentIISSiteXPath(), "/application[@path='/", app$options$webPath, "']") 
   },
 
   iisApplicationDocForRumbaApp = function(app){
-    doc <- xml_new_root("application", path=app$options$webPath)
+    doc <- xml_new_root("application", path=paste0("/", app$options$webPath))
     xml_add_child(doc, "virtualDirectory", path="/", physicalPath=normalizePath(rumba_options$iisApplicationsRoot))
     return(doc)
   },
