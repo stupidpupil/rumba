@@ -57,3 +57,11 @@
   border-radius: 0.1em;
 }
 
+#uiSelectedAppButtons{
+  text-align: center;
+}
+
+#uiSelectedAppButtons button{
+  min-width: 5em;
+}
+

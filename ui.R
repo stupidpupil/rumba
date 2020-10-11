@@ -22,8 +22,7 @@ dashboardPage(
 
         uiOutput("uiSelectedAppInvalidError"),
 
-        actionButton("buttonStartApp", "Start"),
-        actionButton("buttonStopApp", "Stop"),
+        uiOutput("uiSelectedAppButtons"),
 
         uiOutput("uiTableSelectedAppRumbaWorkers")
 

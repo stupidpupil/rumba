@@ -212,18 +212,55 @@ server <- function(input, output, session){
 
   })
 
+
+  output$uiSelectedAppButtons <- renderUI({
+
+    state <- selectedRumbaAppWithTickAndState()$state
+
+    if (state %in% c("stopped")){
+      buttonStartApp <- actionButton("buttonStartApp", "Start")
+    }else{
+      buttonStartApp <- tags$button(class="btn", disabled="true", "Start")
+    }
+
+    if (state %in% c("stopped", "invalid")){
+      buttonStopApp <- tags$button(class="btn", disabled="true", "Stop")
+      buttonReloadApp <- actionButton("buttonReloadApp", "Reload")
+    }else{
+      buttonStopApp <- actionButton("buttonStopApp", "Stop")
+      buttonReloadApp <- tags$button(class="btn", disabled="true", "Reload")
+
+    }
+
+    list(
+      buttonStartApp,
+      buttonStopApp,
+      buttonReloadApp
+    )
+  })
+
+
   observeEvent(input$buttonStartApp, {
-    req(selectedRumbaAppWithTickAndState())
-    selectedRumbaAppWithTickAndState()$start()
+    req(selectedRumbaApp())
+    selectedRumbaApp()$start()
   })
 
   observeEvent(input$buttonStopApp, {
-    req(selectedRumbaAppWithTickAndState())
-    selectedRumbaAppWithTickAndState()$stop()
+    req(selectedRumbaApp())
+    selectedRumbaApp()$stop()
+  })
+
+
+  observeEvent(input$buttonReloadApp, {
+    req(selectedRumbaApp())
+    selectedRumbaApp()$reloadOptions()
   })
 
 
   output$uiTableSelectedAppRumbaWorkers <- renderUI({
+
+    if(selectedRumbaApp()$state == "invalid"){return("")}
+
     tags$table(class="table shiny-table table- spacing-s", style="width:100%",
       tags$thead(
         tags$tr(
