@@ -2,53 +2,7 @@ server <- function(input, output, session){
 
   # Won't react to changing resources
   # but will react to changing config
-  rumba_apps <- reactivePoll(500, NULL,
 
-    checkFunc = function(){
-      list(
-        dirs = rumba_apps_unreactive %>% map(~.x$appDir),
-        options = rumba_apps_unreactive %>% map(~.x$options)
-      )
-    },
-
-    valueFunc = function(){
-      rumba_apps_unreactive
-    }
-  )
-
-  rumba_apps_with_tick_and_state <- reactivePoll(750, NULL,
-    checkFunc = function(){
-      for (app in rumba_apps_unreactive) {
-        app$tick()
-      }
-      
-      list(
-        dirs = rumba_apps_unreactive %>% map(~.x$appDir),
-        options = rumba_apps_unreactive %>% map(~.x$options),
-        state = rumba_apps_unreactive %>% map(~.x$state),
-        active_workers = rumba_apps_unreactive %>% map(~.x$activeWorkerCount())
-      )
-    },
-
-    valueFunc = function(){
-      rumba_apps_unreactive
-    }
-  )
-
-
-  rumba_apps_with_resources <- reactivePoll(2500, NULL,
-    checkFunc = function(){  
-      list(
-        state = rumba_apps_unreactive %>% map(~.x$state),
-        active_workers = rumba_apps_unreactive %>% map(~.x$activeWorkerCount()),
-        mem = rumba_apps_unreactive  %>% map_int(~.x$getRSS()) %>% signif(5)
-      )
-    },
-
-    valueFunc = function(){
-      rumba_apps_unreactive
-    }
-  )
 
   output$sidebarMenuOut <- renderMenu({
     sidebarMenu(id ="sidebarMenu",

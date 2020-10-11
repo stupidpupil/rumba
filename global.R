@@ -11,7 +11,6 @@ source("rumba_iis_web_config.R")
 source("rumba_worker.R")
 source("rumba_app.R")
 
-
 rumba_options <- list(
   iisApplicationHostConfig = "C:/Windows/system32/inetsrv/config/applicationHost.config",
   iisWebConfig = "C:/inetpub/wwwroot/web.config",
@@ -54,6 +53,54 @@ scan_for_rumba_apps <- function(){
 }
 
 scan_for_rumba_apps()
+
+
+rumba_apps <- reactivePoll(500, NULL,
+
+  checkFunc = function(){
+    list(
+      dirs = rumba_apps_unreactive %>% map(~.x$appDir),
+      options = rumba_apps_unreactive %>% map(~.x$options)
+    )
+  },
+
+  valueFunc = function(){
+    rumba_apps_unreactive
+  }
+)
+
+rumba_apps_with_tick_and_state <- reactivePoll(750, NULL,
+  checkFunc = function(){
+
+    for (app in rumba_apps_unreactive) {app$tick()}
+
+    list(
+      dirs = rumba_apps_unreactive %>% map(~.x$appDir),
+      options = rumba_apps_unreactive %>% map(~.x$options),
+      state = rumba_apps_unreactive %>% map(~.x$state),
+      active_workers = rumba_apps_unreactive %>% map(~.x$activeWorkerCount())
+    )
+  },
+
+  valueFunc = function(){
+    rumba_apps_unreactive
+  }
+)
+
+
+rumba_apps_with_resources <- reactivePoll(2500, NULL,
+  checkFunc = function(){  
+    list(
+      state = rumba_apps_unreactive %>% map(~.x$state),
+      active_workers = rumba_apps_unreactive %>% map(~.x$activeWorkerCount()),
+      mem = rumba_apps_unreactive  %>% map_int(~.x$getRSS()) %>% signif(5)
+    )
+  },
+
+  valueFunc = function(){
+    rumba_apps_unreactive
+  }
+)
 
 onStop(function(){
 
