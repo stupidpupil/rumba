@@ -50,8 +50,20 @@ server <- function(input, output, session){
     }
   )
 
+  output$sidebarMenuOut <- renderMenu({
+    sidebarMenu(id ="sidebarMenu",
+      menuItem("Apps", tabName="apps", icon = icon("boxes"), badgeLabel=length(rumba_apps()), badgeColor = "light-blue"),
+      menuItem("App details", tabName="appDetails", icon = icon("box-open"))
+    )
+  })
+
+
+  #
+  # Apps Overview
+  #
+
   output$uiTableRumbaApps <- renderUI({
-    tags$table(class="table shiny-table table- spacing-s", style="width:100%",
+    tags$table(class="table shiny-table table-spacing-s", style="width:100%; max-width:45em;",
       tags$thead(
         tags$tr(
           tags$th("Name"),
@@ -65,7 +77,7 @@ server <- function(input, output, session){
       tags$tbody(
         rumba_apps() %>% imap(function(app, i){
           tags$tr(
-            tags$td(app$name),
+            tags$td(actionLink(paste0("linkSelectApp", i), app$name)),
             tags$td(app$options$webPath),
             tags$td(uiOutput(paste0("textTableRumbaAppsStateTd", i), inline=TRUE)),
             tags$td(uiOutput(paste0("textTableRumbaAppsWorkerCountTd", i), inline=TRUE)),
@@ -95,6 +107,16 @@ server <- function(input, output, session){
     }
   }
 
+  for (i in 1:(rumba_options$maxAppsUIElements)) {
+    local({
+      j <- i
+
+      observeEvent(input[[paste0("linkSelectApp", j)]], {
+        updateSelectInput(session, "selectApp", selected=j)
+        updateTabItems(session, "sidebarMenu", selected="appDetails")
+      })
+    })
+  }
 
   uiTableRumbaAppsResourceColumns = list(
     Memory = function(app){app$getRSS() %>% utils:::format.object_size(units="auto", standard = "IEC", digits=0L)}
@@ -147,7 +169,7 @@ server <- function(input, output, session){
     apps <- rumba_apps()
 
     choices <- 1:length(apps)
-    names(choices) <- paste0(1:length(apps), " - ", apps %>% map_chr(~.x$name))
+    names(choices) <- apps %>% map_chr(~.x$name)
 
     updateSelectInput(session, 'selectApp', selected=selected, choices=choices)
   })
@@ -170,16 +192,15 @@ server <- function(input, output, session){
     rumba_apps_with_resources()[[as.integer(input$selectApp)]]
   })
 
-  output$uiSelectedApp <- renderUI({
-    div(
-      h2(id="selectedAppName", selectedRumbaApp()$name),
-      p(id="selectedAppDir", normalizePath(selectedRumbaApp()$appDir)),
-      p(
-        a(id="selectedAppWebPath", 
-          href=paste0(rumba_options$webPrefix, selectedRumbaApp()$options$webPath),
-          target="_blank",
-          selectedRumbaApp()$options$webPath
-          )
+  output$uiSelectedAppDetails <- renderUI({
+    
+    tags$table(class="table shiny-table table-spacing-s", style="width:100%; max-width:45em;",
+      tags$tbody(
+        tags$tr(tags$th("Directory"), tags$td(normalizePath(selectedRumbaApp()$appDir))),
+        tags$tr(tags$th("Web Path"), tags$td(selectedRumbaApp()$options$webPath)),
+        tags$tr(tags$th("Worker Count"), tags$td(selectedRumbaApp()$options$workerCount)),
+        tags$tr(tags$th("Base Port"), tags$td(selectedRumbaApp()$options$basePort)),
+        tags$tr(tags$th("Web Farm Name"), tags$td(rumba_iis_application_host_config$webFarmNameForRumbaApp(selectedRumbaApp())))
       )
     )
   })
@@ -261,7 +282,7 @@ server <- function(input, output, session){
 
     if(selectedRumbaApp()$state == "invalid"){return("")}
 
-    tags$table(class="table shiny-table table- spacing-s", style="width:100%",
+    tags$table(class="table shiny-table table-spacing-s", style="width:100%",
       tags$thead(
         tags$tr(
           tags$th("Host"),

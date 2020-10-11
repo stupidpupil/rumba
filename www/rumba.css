@@ -41,8 +41,12 @@
   font-family: "Consolas", monospace;
 }
 
-#uiSelectedApp{
-  text-align: center;
+#selectApp{
+  font-size: 2em;
+  height: auto;
+  border: none;
+  padding: 0;
+  color: black;
 }
 
 #selectedAppDir{
@@ -50,15 +54,15 @@
 }
 
 #uiSelectedAppInvalidError p{
-  text-align: center;
   background-color: #ddbbbb;
   color: #550000;
-  padding: 0.2em;
+  padding: 1em;
   border-radius: 0.1em;
 }
 
 #uiSelectedAppButtons{
   text-align: center;
+  margin: 1em;
 }
 
 #uiSelectedAppButtons button{
