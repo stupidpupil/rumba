@@ -193,15 +193,28 @@ server <- function(input, output, session){
   })
 
   output$uiSelectedAppDetails <- renderUI({
-    
+
+    app <- selectedRumbaAppWithTickAndState()
+
+    rows <- list()
+
+    rows <- append(rows, list(
+      tags$tr(tags$th("State"), tags$td(tags$span(class=paste0("rumba-state ", app$state), app$state))),
+      tags$tr(tags$th("Directory"), tags$td(normalizePath(app$appDir)))
+    ))
+
+    if(app$state != "invalid"){
+      rows <- append(rows, list(
+        tags$tr(tags$th("Web Path"), tags$td(app$options$webPath)),
+        tags$tr(tags$th("Worker Count"), tags$td(app$options$workerCount)),
+        tags$tr(tags$th("Base Port"), tags$td(app$options$basePort)),
+        tags$tr(tags$th("Web Farm Name"), tags$td(rumba_iis_application_host_config$webFarmNameForRumbaApp(app)))
+      ))
+    }
+
+
     tags$table(class="table shiny-table table-spacing-s", style="width:100%; max-width:45em;",
-      tags$tbody(
-        tags$tr(tags$th("Directory"), tags$td(normalizePath(selectedRumbaApp()$appDir))),
-        tags$tr(tags$th("Web Path"), tags$td(selectedRumbaApp()$options$webPath)),
-        tags$tr(tags$th("Worker Count"), tags$td(selectedRumbaApp()$options$workerCount)),
-        tags$tr(tags$th("Base Port"), tags$td(selectedRumbaApp()$options$basePort)),
-        tags$tr(tags$th("Web Farm Name"), tags$td(rumba_iis_application_host_config$webFarmNameForRumbaApp(selectedRumbaApp())))
-      )
+      tags$tbody(rows)
     )
   })
 
