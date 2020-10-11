@@ -6,14 +6,13 @@ library(shinydashboard)
 
 source("rumba_port_allocator.R")
 source("rumba_iis_application_host_config.R")
-source("rumba_iis_web_config.R")
 
 source("rumba_worker.R")
 source("rumba_app.R")
 
 rumba_options <- list(
   iisApplicationHostConfig = "C:/Windows/system32/inetsrv/config/applicationHost.config",
-  iisWebConfig = "C:/inetpub/wwwroot/web.config",
+  iisApplicationsRoot = './iis_root',
   appsDir = "apps",
   webPrefix = "http://localhost/",
   maxAppsUIElements = 100L
@@ -28,10 +27,6 @@ rumba_port_allocator <- RumbaPortAllocator$new()
 rumba_iis_application_host_config <- 
   RumbaIISApplicationHostConfig$new(rumba_options$iisApplicationHostConfig)
 rumba_iis_application_host_config$removeAllRumbaWebFarms()
-
-rumba_iis_web_config <-
-  RumbaIISWebConfig$new(rumba_options$iisWebConfig)
-rumba_iis_web_config$removeAllRumbaRewriteRules()
 
 rumba_apps_unreactive <- list()
 

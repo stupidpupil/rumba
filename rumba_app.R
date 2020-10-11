@@ -137,8 +137,8 @@ RumbaApp <- R6Class("RumbaApp", list(
       }
 
       rumba_iis_application_host_config$insertOrUpdateWebFarmForRumbaApp(self)
-      rumba_iis_web_config$insertOrUpdateRewriteRuleForRumbaApp(self)
-
+      rumba_iis_application_host_config$insertOrUpdateIISApplicationLocationForRumbaApp(self)
+      rumba_iis_application_host_config$insertOrUpdateIISApplicationForRumbaApp(self)
     },
       error = function(err){
         print(err)
@@ -162,7 +162,8 @@ RumbaApp <- R6Class("RumbaApp", list(
     self$state <- "stopping"
 
     tryCatch({
-      rumba_iis_web_config$removeRewriteRuleForRumbaApp(self)
+      rumba_iis_application_host_config$removeIISApplicationForRumbaApp(self)
+      rumba_iis_application_host_config$removeIISApplicationLocationForRumbaApp(self)
       rumba_iis_application_host_config$removeWebFarmForRumbaApp(self)
     },
       error = function(err){print(err)}
