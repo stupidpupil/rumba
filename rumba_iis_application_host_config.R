@@ -190,7 +190,7 @@ RumbaIISApplicationHostConfig <- R6Class("RumbaIISApplicationHostConfig", list(
 
     xml_remove(nodeSet)
 
-    parentSite <- xml_find_all(doc, self$parentIISSiteXPath())
+    parentSite <- xml_find_first(doc, self$parentIISSiteXPath())
 
     newIISApp <- self$iisApplicationDocForRumbaApp(app)
 
@@ -229,7 +229,7 @@ RumbaIISApplicationHostConfig <- R6Class("RumbaIISApplicationHostConfig", list(
 
     rewriteRuleDoc <- xml_new_root("rule", name=self$rewriteRuleNameForRumbaApp(app), stopProcessing="true")
 
-    xml_add_child(rewriteRuleDoc, "match", url=paste0("^", app$options$webPath, "/(.*)"))
+    xml_add_child(rewriteRuleDoc, "match", url="^(.*)")
     xml_add_child(rewriteRuleDoc, "conditions", logicalGrouping="MatchAll", trackAllCaptures="false")
 
     webFarmName <- self$webFarmNameForRumbaApp(app)
