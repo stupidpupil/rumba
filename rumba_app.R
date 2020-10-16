@@ -138,7 +138,7 @@ RumbaApp <- R6Class("RumbaApp", list(
       }
 
       rumba_iis_application_host_config$insertOrUpdateWebFarmForRumbaApp(self)
-      RumbaIISWebConfig$new(self)$insertOrUpdateRewriteRule()
+      RumbaIISWebConfig$new(self)$setup()
 
     },
       error = function(err){
@@ -164,7 +164,7 @@ RumbaApp <- R6Class("RumbaApp", list(
 
     tryCatch({
 
-      RumbaIISWebConfig$new(self)$removeRewriteRule()
+      RumbaIISWebConfig$new(self)$teardown()
       rumba_iis_application_host_config$removeWebFarmForRumbaApp(self)
     },
       error = function(err){print(err)}
