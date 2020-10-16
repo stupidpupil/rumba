@@ -93,7 +93,7 @@ rumba_apps_with_resources <- reactivePoll(2500, NULL,
     list(
       state = rumba_apps_unreactive %>% map(~.x$state),
       active_workers = rumba_apps_unreactive %>% map(~.x$activeWorkerCount()),
-      mem = rumba_apps_unreactive  %>% map_int(~.x$getRSS()) %>% signif(5)
+      mem = rumba_apps_unreactive  %>% map_dbl(~.x$getRSS()) %>% signif(5)
     )
   },
 

@@ -164,20 +164,21 @@ RumbaWorker <- R6Class("RumbaWorker", list(
   # Resident set size
   getRSS = function(){
     if(!(self$state %in% c("starting", "started", "stopping"))){
-      return(NA)
+      return(NA_real_)
     }
 
     if(!self$process$is_alive()){
-      return(NA)
+      return(NA_real_)
     }
 
     tryCatch({
 
-      return(as.integer(self$process$get_memory_info()[['rss']]))
+      return(self$process$get_memory_info()[['rss']])
 
       }
       ,error = function(err){
-        return(NA)
+        print(err)
+        return(NA_real_)
       }
 
     )

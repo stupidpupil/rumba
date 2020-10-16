@@ -176,7 +176,7 @@ RumbaApp <- R6Class("RumbaApp", list(
   },
 
   getRSS = function(){
-    rss <- 0L
+    rss <- 0
 
     for (w in self$workers) {
 
