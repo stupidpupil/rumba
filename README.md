@@ -36,7 +36,7 @@ webPath: my_cool_app
 | Setting                  | Default                                                   | Description                                                                                                          |
 |--------------------------|-----------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
 | iisApplicationHostConfig | C:/Windows/system32/inetsrv/config/applicationHost.config | The IIS configuration file that Rumba will try to define Web Farms in.                                               |
-| iisWebConfig             | C:/inetpub/wwwroot/web.config                             | The IIS site configuration file that Rumba will try to define ARR rewrite rules in.                                  |
+| iisSitePath              | C:/inetpub/wwwroot/                                       | The physical path that Rumba will try to create sub-directories, containing web.config files with rewrite rules, in.                         |
 | appsDir                  | apps                                                      | Where Rumba will look for app directories. Each app directory must contain a valid rumba.yml file, as described above. |
 
 
