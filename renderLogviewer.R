@@ -17,21 +17,37 @@ Type 'contributors()' for more information and
 Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
-Loading required package: shiny", "\n"))
+Loading required package: shiny
+Geospatial Data Abstraction Library extensions to R successfully loaded", "\n"))
 
     errorRegexp <- "^(Error|Stack trace)\\b"
     warningRegexp <- "^Warning\\b"
     positiveRegexp <- "^Listening on http://"
-    uninterestingRegexp <- "^(Copyright|Loading required package:|── Attaching packages|✔.+✔.+)"
+    uninterestingRegexp <- paste0("^\\s*(", paste(
+      "Copyright",
+      "Loading required package:",
+      "── Attaching packages",
+      "✔.+✔.+",
+      "(rgeos|rgdal):? version:",
+      "GEOS runtime version",
+      "Linking to sp version:",
+      "Loaded (PROJ\\.4|GDAL) runtime:",
+      "Path to (PROJ\\.4|GDAL) shared files:",
+      "Polygon checking: TRUE ",
+      sep = "|"), ")")
+
 
     lines <- tibble(
       text = lines 
     ) %>%
     mutate(
-      uninteresting = str_detect(text, uninterestingRegexp) | (text %>% map_lgl(function(x){any(str_trim(x) == uninterestingLines)})),
       error = str_detect(text, errorRegexp),
       warning = str_detect(text, warningRegexp),
-      positive = str_detect(text, positiveRegexp)
+      positive = str_detect(text, positiveRegexp),
+      uninteresting = 
+        (!error & !warning & !positive) &
+        (str_detect(text, uninterestingRegexp) | (text %>% map_lgl(function(x){any(str_trim(x) == uninterestingLines)})))
+
     ) %>%
     mutate(
       `uninteresting-group` = uninteresting & (
