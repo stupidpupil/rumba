@@ -34,7 +34,7 @@ Loading required package: shiny", "\n"))
       positive = str_detect(text, positiveRegexp)
     ) %>%
     mutate(
-      `uninteresting-group` = lag(uninteresting) & uninteresting & lead(uninteresting),
+      `uninteresting-group` = lead(uninteresting) & uninteresting & (lag(uninteresting) | lead(uninteresting, 2)),
       startUninterestingGroup = !lag(`uninteresting-group`) & `uninteresting-group`
     )
 
