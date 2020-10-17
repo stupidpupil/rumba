@@ -99,6 +99,11 @@ rumba_apps_with_resources <- reactivePoll(2500, NULL,
   }
 )
 
+log_paths <- reactivePoll(750, NULL,
+  checkFunc = function(){list.files("logs", recursive=TRUE, pattern="*/*/*.log")},
+  valueFunc = function(){list.files("logs", recursive=TRUE, pattern="*/*/*.log")}
+)
+
 onStop(function(){
 
   for (app in rumba_apps_unreactive) {

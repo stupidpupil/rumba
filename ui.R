@@ -6,11 +6,13 @@ dashboardPage(
   dashboardBody(
 
     tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "rumba.css")
+      tags$link(rel = "stylesheet", type = "text/css", href = "rumba.css"),
+      tags$link(rel = "stylesheet", type = "text/css", href = "rumba_logviewer.css")
       ),
 
 
     tabItems(
+
       tabItem(tabName="apps",
         fluidRow(
           box(width=12,
@@ -44,7 +46,19 @@ dashboardPage(
           )
 
         )
+      ),
+
+
+      tabItem(tabName="logViewer",
+        fluidRow(
+          box(width=12, selectInput("selectLogPath", "Log", choices=c(), selectize=FALSE))
+        ),
+
+        fluidRow(
+          box(width=12, uiOutput("uiLogviewer"))
+        )
       )
+
 
     )
   )

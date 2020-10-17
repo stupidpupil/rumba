@@ -1,13 +1,13 @@
-server <- function(input, output, session){
+source("renderLogviewer.R")
 
-  # Won't react to changing resources
-  # but will react to changing config
+server <- function(input, output, session){
 
 
   output$sidebarMenuOut <- renderMenu({
     sidebarMenu(id ="sidebarMenu",
       menuItem("Apps", tabName="apps", icon = icon("boxes"), badgeLabel=length(rumba_apps()), badgeColor = "light-blue"),
-      menuItem("App details", tabName="appDetails", icon = icon("box-open"))
+      menuItem("App details", tabName="appDetails", icon = icon("box-open")),
+      menuItem("Log viewer", tabName="logViewer", icon = icon("align-left"))
     )
   })
 
@@ -316,16 +316,25 @@ server <- function(input, output, session){
 
 
   #
-  # Selected worker
+  # Log viewer
   #
 
   observe({
-    selected <- isolate(input$selectWorker)
-    ws <- selectedRumbaApp()$workers
-    choices <- 1:length(ws)
-    names(choices) <- paste0(1:length(ws), " - ", ws %>% map_chr(~.x$getPort()))
-
-    updateSelectInput(session, 'selectWorker', selected = selected, choices=choices)
+    selected <- isolate(input$selectLogPath)
+    updateSelectInput(session, "selectLogPath", choices=log_paths(), selected=selected)
   })
+
+
+  logLines <- reactive({
+    if(!(input$selectLogPath %in% log_paths())){
+      return(NA_character_)
+    }
+
+    readLines(paste0("logs/", input$selectLogPath))
+
+  })
+
+  output$uiLogviewer <- renderLogviewer(logLines)
+
 
 }
