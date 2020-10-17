@@ -19,12 +19,15 @@ Type 'contributors()' for more information and
 'citation()' on how to cite R or R packages in publications.
 Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
-Type 'q()' to quit R.", "\n"))
+Type 'q()' to quit R.
+Loading required package: shiny", "\n"))
 
     errorRegexp <- "^Error\\b"
     warningRegexp <- "^Warning\\b"
 
     positiveRegexp <- "^(> shiny::runApp|Listening on http)"
+
+    retList[[1]] <- tags$tr(class="bookend", tags$td(`data-line-number` = " ", class="line-number"), tags$td(class="line", ""))
 
     for (i in 1:length(lines)) {
       line <- lines[[i]]
@@ -49,9 +52,11 @@ Type 'q()' to quit R.", "\n"))
         lineClasses <- c(lineClasses, "positive")
       }
 
-      retList[[i]] <- tags$code(class=lineClasses, line)
+      retList[[i+1]] <- tags$tr(class=lineClasses, tags$td(`data-line-number` = i, class="line-number"), tags$td(class="line", line))
     }
 
-    return(tags$div(tags$pre(class="rumba-logviewer", retList)))
+    retList[[length(lines)+2]] <- retList[[1]]
+
+    return(tags$table(class="rumba-logviewer", retList))
   }))
 }

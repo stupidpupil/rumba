@@ -1,60 +1,56 @@
 .rumba-logviewer{
-  width:auto;
+  width: auto;
   background-color: #002b36;
   color: #fdf6e3;
   margin:1em;
-  padding: 0px;
-  white-space: pre-line;
   max-height: calc(100vh - 300px);
+  font-family: "Consolas", monospace;
+  display: block;
+  overflow-y: scroll;
+  overflow-x: scroll;
+  border-radius: 0.25em;
+}
+
+.rumba-logviewer td.line{
+  white-space: pre;
+}
+
+.rumba-logviewer tr.bookend {
+  font-size: 50%;  
 }
 
 /* Uninteresting, Warnings and Errors etc.*/
 
-.rumba-logviewer code.uninteresting{
+.rumba-logviewer tr.uninteresting td.line{
   color: #819090;
 }
 
-.rumba-logviewer code.positive:before{
+.rumba-logviewer tr.positive td.line{
   color: #2aa198;
 }
 
 
-.rumba-logviewer code.warning:before{
+.rumba-logviewer tr.warning td.line{
   color: #b58900;
 }
 
-.rumba-logviewer code.error:before{
+.rumba-logviewer tr.error td.line{
   color: #cb4b16;
 }
 
 /* Line Numbers */
 
-.rumba-logviewer{
-  counter-reset: line;
-}
 
-.rumba-logviewer code{
-  counter-increment: line;
-}
-
-.rumba-logviewer code:before{
-  content: counter(line);
+.rumba-logviewer td.line-number:before{
+  content: attr(data-line-number);
   -webkit-user-select: none;
   background-color: #073642;
   color: #819090;
   padding-left: 0;
   margin-left: 0;
-  width: 3em;
+  width: 4.5rem;
   text-align: right;
   padding-right: 0.5em;
   margin-right: 0.8em;
   display: inline-block;
-}
-
-.rumba-logviewer code:first-child:before{
-  padding-top: 0.3em;
-}
-
-.rumba-logviewer code:last-child:before{
-  padding-bottom: 0.5em;
 }
