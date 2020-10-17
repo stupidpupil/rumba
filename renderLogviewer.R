@@ -1,12 +1,10 @@
 library(shiny)
-library(stringr)
+library(tidyverse)
 
 renderLogviewer <- function(logLinesReactive){
   return(renderUI({
     
-    retList <- list()
     lines <- logLinesReactive()
-
 
     uninterestingLines <- unlist(str_split("
 Copyright (C) 2020 The R Foundation for Statistical Computing
@@ -24,39 +22,48 @@ Loading required package: shiny", "\n"))
 
     errorRegexp <- "^Error\\b"
     warningRegexp <- "^Warning\\b"
+    positiveRegexp <- "^Listening on http://"
 
-    positiveRegexp <- "^(> shiny::runApp|Listening on http)"
+    lines <- tibble(
+      text = lines 
+    ) %>%
+    mutate(
+      uninteresting = text %>% map_lgl(function(x){any(str_trim(x) == uninterestingLines)}),
+      error = str_detect(text, errorRegexp),
+      warning = str_detect(text, warningRegexp),
+      positive = str_detect(text, positiveRegexp)
+    ) %>%
+    mutate(
+      `uninteresting-group` = lag(uninteresting) & uninteresting & lead(uninteresting),
+      startUninterestingGroup = !lag(`uninteresting-group`) & `uninteresting-group`
+    )
 
-    retList[[1]] <- tags$tr(class="bookend", tags$td(`data-line-number` = " ", class="line-number"), tags$td(class="line", ""))
+    retList <- list()
+    retList[[1]] <- tags$tr(class="bookend",
+      tags$td(`data-line-number` = " ", class="line-number"), tags$td(class="line", ""))
 
-    for (i in 1:length(lines)) {
-      line <- lines[[i]]
+    possibleLineClasses <- c("uninteresting", "error", "warning", "positive", "uninteresting-group")
 
+    for (i in 1:nrow(lines)) {
+      lineClasses <- possibleLineClasses[possibleLineClasses %>% map_lgl(function(x){lines[[i, x]]})]
 
-      lineClasses <- c()
-
-
-      if(any(str_trim(line) == uninterestingLines)){
-        lineClasses <- c(lineClasses, "uninteresting")
+      if(lines[[i, "startUninterestingGroup"]]){
+        retList[[length(retList)+1]] <- tags$tr(class="uninteresting-group-ellipsis",
+          tags$td(`data-line-number` = "…", class="line-number"), tags$td(""))
       }
 
-      if(str_detect(line, errorRegexp)){
-        lineClasses <- c(lineClasses, "error")
-      }
-
-      if(str_detect(line, warningRegexp)){
-        lineClasses <- c(lineClasses, "warning")
-      }
-
-      if(str_detect(line, positiveRegexp)){
-        lineClasses <- c(lineClasses, "positive")
-      }
-
-      retList[[i+1]] <- tags$tr(class=lineClasses, tags$td(`data-line-number` = i, class="line-number"), tags$td(class="line", line))
+      retList[[length(retList)+1]] <- tags$tr(class=paste(lineClasses, collapse=" "),
+        tags$td(`data-line-number` = i, class="line-number"), tags$td(class="line", lines[[i, 'text']]))
     }
 
-    retList[[length(lines)+2]] <- retList[[1]]
+    retList[[length(retList)+1]] <- retList[[1]]
 
-    return(tags$table(class="rumba-logviewer", retList))
+    uninterestingGroupToggleId <- paste0("uninterestingGroupToggle", strftime(Sys.time(), "%y%m%d%H%M%S"), length(retList))
+
+    return(tags$div(
+      tags$input(type="checkbox", checked=TRUE, id=uninterestingGroupToggleId, class="rumba-logviewer-uninteresting-group-toggle"),
+      tags$label(`for`=uninterestingGroupToggleId, "Collapse groups of uninteresting lines"),
+      tags$table(class="rumba-logviewer", retList)
+    ))
   }))
 }

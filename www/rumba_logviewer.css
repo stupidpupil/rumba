@@ -2,7 +2,7 @@
   width: auto;
   background-color: #002b36;
   color: #fdf6e3;
-  margin:1em;
+  margin:0.5em;
   max-height: calc(100vh - 300px);
   font-family: "Consolas", monospace;
   display: block;
@@ -16,7 +16,7 @@
 }
 
 .rumba-logviewer tr.bookend {
-  font-size: 50%;  
+  font-size: 80%;  
 }
 
 /* Uninteresting, Warnings and Errors etc.*/
@@ -37,6 +37,29 @@
 .rumba-logviewer tr.error td.line{
   color: #cb4b16;
 }
+
+/* Uninteresting groups */
+
+input[type="checkbox"].rumba-logviewer-uninteresting-group-toggle{
+  margin-left: 0.5em;
+}
+
+.rumba-logviewer tr.uninteresting-group{
+  font-size: 100%
+}
+
+.rumba-logviewer tr.uninteresting-group-ellipsis{
+  font-size: 0;
+}
+
+.rumba-logviewer-uninteresting-group-toggle:checked ~ .rumba-logviewer tr.uninteresting-group{
+  font-size:0;
+}
+
+.rumba-logviewer-uninteresting-group-toggle:checked ~ .rumba-logviewer tr.uninteresting-group-ellipsis{
+  font-size:100%;
+}
+
 
 /* Line Numbers */
 
