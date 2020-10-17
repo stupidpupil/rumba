@@ -7,7 +7,6 @@ renderLogviewer <- function(logLinesReactive){
     lines <- logLinesReactive()
 
     uninterestingLines <- unlist(str_split("
-Copyright (C) 2020 The R Foundation for Statistical Computing
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
 Type 'license()' or 'licence()' for distribution details.
@@ -20,21 +19,28 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 Type 'q()' to quit R.
 Loading required package: shiny", "\n"))
 
-    errorRegexp <- "^Error\\b"
+    errorRegexp <- "^(Error|Stack trace)\\b"
     warningRegexp <- "^Warning\\b"
     positiveRegexp <- "^Listening on http://"
+    uninterestingRegexp <- "^(Copyright|Loading required package:|── Attaching packages|✔.+✔.+)"
 
     lines <- tibble(
       text = lines 
     ) %>%
     mutate(
-      uninteresting = text %>% map_lgl(function(x){any(str_trim(x) == uninterestingLines)}),
+      uninteresting = str_detect(text, uninterestingRegexp) | (text %>% map_lgl(function(x){any(str_trim(x) == uninterestingLines)})),
       error = str_detect(text, errorRegexp),
       warning = str_detect(text, warningRegexp),
       positive = str_detect(text, positiveRegexp)
     ) %>%
     mutate(
-      `uninteresting-group` = lead(uninteresting) & uninteresting & (lag(uninteresting) | lead(uninteresting, 2)),
+      `uninteresting-group` = uninteresting & (
+        (lag(uninteresting, 2) & lag(uninteresting)) |
+        (lag(uninteresting)   & lead(uninteresting)) |
+        (lead(uninteresting)) & lead(uninteresting, 2)
+        ),
+
+      `uninteresting-group` = ifelse(is.na(`uninteresting-group`), FALSE, `uninteresting-group`),
       startUninterestingGroup = !lag(`uninteresting-group`) & `uninteresting-group`
     )
 
