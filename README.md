@@ -45,7 +45,7 @@ webPath: my_cool_app
 
 By default Rumba will not touch authorization settings. However, you can choose to define groups of Active Directory Users and Roles/Groups and only permit access to these on an app-by-app basis.
 
-In `authz_groups/HollowMen.csv`:
+In *authz_groups/HollowMen.csv*:
 
 ```csv
 sAMAccountName,objectType,addedAt
@@ -53,7 +53,7 @@ ab123456,user,2020-10-18T10:14:21Z
 
 ```
 
-In your app's `rumba.yml`:
+In your app's *rumba.yml*:
 
 ```yaml
 # an example rumba.yml file
@@ -63,7 +63,7 @@ allow:
 
 ```
 
-Note that Rumba will clear any existing Authorization rules and replace them its own.
+Be aware that if *allow* is defined in a *rumba.yml*, Rumba will clear any existing Authorization rules and replace them its own.
 
 ## Alternatives
 
