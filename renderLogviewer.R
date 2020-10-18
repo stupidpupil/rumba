@@ -44,6 +44,7 @@ Geospatial Data Abstraction Library extensions to R successfully loaded", "\n"))
       error = str_detect(text, errorRegexp),
       warning = str_detect(text, warningRegexp),
       positive = str_detect(text, positiveRegexp),
+      empty = str_trim(text) == "",
       uninteresting = 
         (!error & !warning & !positive) &
         (str_detect(text, uninterestingRegexp) | (text %>% map_lgl(function(x){any(str_trim(x) == uninterestingLines)})))
@@ -64,7 +65,7 @@ Geospatial Data Abstraction Library extensions to R successfully loaded", "\n"))
     retList[[1]] <- tags$tr(class="bookend",
       tags$td(`data-line-number` = " ", class="line-number"), tags$td(class="line", ""))
 
-    possibleLineClasses <- c("uninteresting", "error", "warning", "positive", "uninteresting-group")
+    possibleLineClasses <- c("uninteresting", "error", "warning", "positive", "empty", "uninteresting-group")
 
     for (i in 1:nrow(lines)) {
       lineClasses <- possibleLineClasses[possibleLineClasses %>% map_lgl(function(x){lines[[i, x]]})]
