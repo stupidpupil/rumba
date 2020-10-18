@@ -4,10 +4,14 @@ server <- function(input, output, session){
 
 
   output$sidebarMenuOut <- renderMenu({
+
+    selectedItem <- isolate(input$sidebarMenu)
+
     sidebarMenu(id ="sidebarMenu",
-      menuItem("Apps", tabName="apps", icon = icon("boxes"), badgeLabel=length(rumba_apps()), badgeColor = "light-blue"),
-      menuItem("App details", tabName="appDetails", icon = icon("box-open")),
-      menuItem("Log viewer", tabName="logViewer", icon = icon("align-left"))
+      menuItem("Apps", tabName="apps", icon = icon("boxes"), selected=(selectedItem=="app"),
+        badgeLabel=length(rumba_apps()), badgeColor = "light-blue"),
+      menuItem("App details", tabName="appDetails", icon = icon("box-open"), selected=(selectedItem=="appDetails")),
+      menuItem("Log viewer", tabName="logViewer", icon = icon("align-left"), selected=(selectedItem=="logViewer"))
     )
   })
 
