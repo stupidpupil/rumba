@@ -159,6 +159,7 @@ RumbaIISWebConfig <- R6Class("RumbaIISWebConfig", list(
     authz <- xml_find_or_create_first(doc, "//configuration/system.webServer/security/authorization")
 
     xml_add_child(authz, "clear")
+    xml_add_child(authz, "add", accessType = "Deny", users="?")
 
     userList <- usersAndGroups %>% 
       filter(objectType == "user") %>% 
@@ -166,13 +167,12 @@ RumbaIISWebConfig <- R6Class("RumbaIISWebConfig", list(
       paste(collapse=",")
 
 
-
-    xml_add_child(authz, "add", accessType = "allow", users=userList)
+    xml_add_child(authz, "add", accessType = "Allow", users=userList)
 
     groupList <- usersAndGroups %>% 
       filter(objectType == "group") %>% 
       pull("sAMAccountName") %>%
-      walk(function(x){xml_add_child(authz, "add", accessType = "allow", roles=x)})
+      walk(function(x){xml_add_child(authz, "add", accessType = "Allow", roles=x)})
 
 
     write_xml(doc, self$webConfigPath)
