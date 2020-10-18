@@ -9,7 +9,8 @@ RumbaApp <- R6Class("RumbaApp", list(
 
   defaultOptions = list(
       workerCount = 2L,
-      basePort = NA_integer_
+      basePort = NA_integer_,
+      allow = NULL
   ),
   argumentOptions = list(),
 

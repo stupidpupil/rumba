@@ -5,6 +5,8 @@ library(shiny)
 library(shinydashboard)
 
 source("rumba_port_allocator.R")
+source("rumba_authz_controller.R")
+
 source("rumba_iis_application_host_config.R")
 source("rumba_iis_web_config.R")
 
@@ -24,6 +26,7 @@ if(file.exists("config.yml")){
 }
 
 rumba_port_allocator <- RumbaPortAllocator$new()
+rumba_authz_controller <- RumbaAuthzController$new()
 
 rumba_iis_application_host_config <- 
   RumbaIISApplicationHostConfig$new(rumba_options$iisApplicationHostConfig)

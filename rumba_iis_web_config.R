@@ -35,19 +35,27 @@ RumbaIISWebConfig <- R6Class("RumbaIISWebConfig", list(
       dir.create(self$subDirPath, recursive = FALSE)
     }
 
+    self$insertOrUpdateAuthorizationWithUsersAndGroups(
+      rumba_authz_controller$adUsersAndGroupsForApp(self$app))
+
     self$insertOrUpdateRewriteRule()
+
   },
 
   teardown = function(){
-    self$removeRewriteRule()
 
     if(any(xml_text(xml_contents(self$webConfigDoc())) == self$rumbaAutodeleteMarkerComment)){
       file.remove(self$webConfigPath)
+
+      if(length(list.files(self$subDirPath, all.files = TRUE, no.. = TRUE)) == 0){
+        file.remove(self$subDirPath)
+      }
+
+      return(TRUE)
     }
 
-    if(length(list.files(self$subDirPath, all.files = TRUE, no.. = TRUE)) == 0){
-      file.remove(self$subDirPath)
-    }
+    self$removeRewriteRule()
+    self$removeAuthorizationIfAppropriate()
 
   },
 
@@ -132,6 +140,59 @@ RumbaIISWebConfig <- R6Class("RumbaIISWebConfig", list(
     write_xml(doc, self$webConfigPath)
 
     return(TRUE)
+  },
+
+  #
+  # Authorization
+  #
+
+  insertOrUpdateAuthorizationWithUsersAndGroups = function(usersAndGroups){
+    if(is.null(usersAndGroups)){
+      return(TRUE)
+    }
+
+    doc <- self$webConfigDoc()
+
+    nodeSet <- xml_find_all(doc, "//configuration/system.webServer/security/authorization/*")
+    xml_remove(nodeSet)
+
+    authz <- xml_find_or_create_first(doc, "//configuration/system.webServer/security/authorization")
+
+    xml_add_child(authz, "clear")
+
+    userList <- usersAndGroups %>% 
+      filter(objectType == "user") %>% 
+      pull("sAMAccountName") %>%
+      paste(collapse=",")
+
+
+
+    xml_add_child(authz, "add", accessType = "allow", users=userList)
+
+    groupList <- usersAndGroups %>% 
+      filter(objectType == "group") %>% 
+      pull("sAMAccountName") %>%
+      walk(function(x){xml_add_child(authz, "add", accessType = "allow", roles=x)})
+
+
+    write_xml(doc, self$webConfigPath)
+
+    return(TRUE)
+  },
+
+  removeAuthorizationIfAppropriate = function(){
+    if(is.null(self$app$options$allow)){
+      return(TRUE)
+    }
+
+    doc <- self$webConfigDoc()
+
+    nodeSet <- xml_find_all(doc, "//configuration/system.webServer/security/authorization")
+    xml_remove(nodeSet)
+
+    write_xml(doc, self$webConfigPath)
+
   }
+
 
 ))
