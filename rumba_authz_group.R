@@ -73,7 +73,12 @@ RumbaAuthzGroup <- R6Class("RumbaAuthzGroup", list(
     if(Sys.info()[["sysname"]] == "Windows"){
       checkUsernameCommand <- paste0("net user ", username, " /domain")
     }else{ # Fallback for testing purposes
-      checkUsernameCommand <- "echo 'could not be found'"
+
+      if(username == "gerald"){
+        checkUsernameCommand <- "echo ':)'"
+      }else{
+        checkUsernameCommand <- "echo 'could not be found'"
+      }
     }
 
     checkUsernameOutput <- system(checkUsernameCommand, intern = TRUE)
