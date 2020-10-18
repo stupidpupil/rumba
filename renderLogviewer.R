@@ -4,6 +4,8 @@ library(tidyverse)
 renderLogviewer <- function(logLinesReactive){
   return(renderUI({
     
+    req(logLinesReactive())
+
     lines <- logLinesReactive()
 
     uninterestingLines <- unlist(str_split("

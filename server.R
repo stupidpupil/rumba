@@ -330,6 +330,8 @@ server <- function(input, output, session){
 
 
   logLines <- reactive({
+    req(input$selectLogPath)
+
     if(!(input$selectLogPath %in% log_paths())){
       return(NA_character_)
     }
