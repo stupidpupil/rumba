@@ -350,18 +350,43 @@ server <- function(input, output, session){
     tibble()
   })
 
+  observe({
+    req(authz_groups())
+    selected = isolate(input$selectAuthzGroup)
+    updateSelectInput(session, "selectAuthzGroup", choices=authz_groups(), selected=selected)
+  })
+
+
+  observeEvent(input$buttonAuthzNewGroup, {
+    req(input$textAuthzNewGroupName)
+
+    tryCatch({
+      grp <- RumbaAuthzGroup$new(input$textAuthzNewGroupName)
+      grp$save()
+
+      updateTextInput(session, "textAuthzNewGroupName", value = "")
+
+      selected = grp$name
+      choices <- list.files("authz_groups", recursive=TRUE, pattern="*.csv") %>% str_sub(1L,-5L)
+      updateSelectInput(session, "selectAuthzGroup", choices=choices, selected=selected)
+    },
+
+    error=function(err){
+      showModal(modalDialog(err$message, title="Unable to create group"))
+    }
+
+    )
+
+  })
+
   observeEvent(input$selectAuthzGroup, {
     req(input$selectAuthzGroup)
     selectedAuthzGroupEntries(RumbaAuthzGroup$new(input$selectAuthzGroup)$adObjects)
-
   })
 
   output$tableAuthzGroupEntries <- renderTable({
     selectedAuthzGroupEntries()
   })
-
-
-
 
   observeEvent(input$buttonAuthzGroupAddUser, {
     req(input$selectAuthzGroup)
@@ -376,6 +401,24 @@ server <- function(input, output, session){
     },
     error=function(err){
       showModal(modalDialog(err$message, title="Unable to add user"))
+    }
+    )
+  })
+
+
+  observeEvent(input$buttonAuthzGroupAddGroup, {
+    req(input$selectAuthzGroup)
+    req(input$textAuthzGroupNewNames)
+    tryCatch({
+      grp <- RumbaAuthzGroup$new(input$selectAuthzGroup)
+      grp$addGroup(input$textAuthzGroupNewNames)
+      updateTextInput(session, "textAuthzGroupNewNames", value = "")
+      grp$save()
+      rumba_authz_controller$authzGroupDidUpdate(grp$name)
+      selectedAuthzGroupEntries(grp$adObjects)
+    },
+    error=function(err){
+      showModal(modalDialog(err$message, title="Unable to add group"))
     }
     )
   })

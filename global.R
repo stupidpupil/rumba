@@ -107,6 +107,11 @@ log_paths <- reactivePoll(750, NULL,
   valueFunc = function(){list.files("logs", recursive=TRUE, pattern="*/*/*.log")}
 )
 
+authz_groups <- reactivePoll(750, NULL,
+  checkFunc = function(){list.files("authz_groups", recursive=TRUE, pattern="*.csv")},
+  valueFunc = function(){list.files("authz_groups", recursive=TRUE, pattern="*.csv") %>% str_sub(1L,-5L)}
+)
+
 onStop(function(){
 
   for (app in rumba_apps_unreactive) {

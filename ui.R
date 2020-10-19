@@ -62,12 +62,15 @@ dashboardPage(
       tabItem(tabName="authzGroups",
         fluidRow(
           box(width=6,
-            selectInput("selectAuthzGroup", "Authorization Group", choices=c("PHW_SnT_Test"), size=12, selectize=FALSE)
+            selectInput("selectAuthzGroup", "Authorization Group", choices=c(), size=12, selectize=FALSE),
+            textInput("textAuthzNewGroupName", "Group Name"),
+            actionButton("buttonAuthzNewGroup", "New Group")
           ),
           box(width=6,
             tableOutput("tableAuthzGroupEntries"),
             textInput("textAuthzGroupNewNames", "User or Group Name"),
-            actionButton("buttonAuthzGroupAddUser", "Add User")
+            actionButton("buttonAuthzGroupAddUser", "Add User"),
+            actionButton("buttonAuthzGroupAddGroup", "Add Group")
           )
         )
       )
