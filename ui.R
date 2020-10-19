@@ -57,6 +57,19 @@ dashboardPage(
         fluidRow(
           box(width=12, uiOutput("uiLogviewer"))
         )
+      ),
+
+      tabItem(tabName="authzGroups",
+        fluidRow(
+          box(width=6,
+            selectInput("selectAuthzGroup", "Authorization Group", choices=c("PHW_SnT_Test"), size=12, selectize=FALSE)
+          ),
+          box(width=6,
+            tableOutput("tableAuthzGroupEntries"),
+            textInput("textAuthzGroupNewNames", "User or Group Name"),
+            actionButton("buttonAuthzGroupAddUser", "Add User")
+          )
+        )
       )
 
 

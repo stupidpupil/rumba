@@ -15,6 +15,11 @@ RumbaAuthzController <- R6Class("RumbaAuthzController", list(
   },
 
   updateAuthorizationForApp = function(app){
+
+    if(!(app$state %in% c('starting', 'started'))){
+      return(FALSE)
+    }
+
     webConfig <- RumbaIISWebConfig$new(app)
     webConfig$insertOrUpdateAuthorizationWithUsersAndGroups(self$adUsersAndGroupsForApp(app))
   },

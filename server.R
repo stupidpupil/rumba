@@ -11,7 +11,8 @@ server <- function(input, output, session){
       menuItem("Apps", tabName="apps", icon = icon("boxes"), selected=(selectedItem=="app"),
         badgeLabel=length(rumba_apps()), badgeColor = "light-blue"),
       menuItem("App details", tabName="appDetails", icon = icon("box-open"), selected=(selectedItem=="appDetails")),
-      menuItem("Log viewer", tabName="logViewer", icon = icon("align-left"), selected=(selectedItem=="logViewer"))
+      menuItem("Log viewer", tabName="logViewer", icon = icon("align-left"), selected=(selectedItem=="logViewer")),
+      menuItem("Authorization", tabName="authzGroups", icon = icon("user-friends"), selected=(selectedItem=="authzGroups"))
     )
   })
 
@@ -339,6 +340,46 @@ server <- function(input, output, session){
   })
 
   output$uiLogviewer <- renderLogviewer(logLines)
+
+
+  #
+  # Authorization Groups
+  #
+
+  selectedAuthzGroupEntries <- reactiveVal({
+    tibble()
+  })
+
+  observeEvent(input$selectAuthzGroup, {
+    req(input$selectAuthzGroup)
+    selectedAuthzGroupEntries(RumbaAuthzGroup$new(input$selectAuthzGroup)$adObjects)
+
+  })
+
+  output$tableAuthzGroupEntries <- renderTable({
+    selectedAuthzGroupEntries()
+  })
+
+
+
+
+  observeEvent(input$buttonAuthzGroupAddUser, {
+    req(input$selectAuthzGroup)
+    req(input$textAuthzGroupNewNames)
+    tryCatch({
+      grp <- RumbaAuthzGroup$new(input$selectAuthzGroup)
+      grp$addUser(input$textAuthzGroupNewNames)
+      updateTextInput(session, "textAuthzGroupNewNames", value = "")
+      grp$save()
+      rumba_authz_controller$authzGroupDidUpdate(grp$name)
+      selectedAuthzGroupEntries(grp$adObjects)
+    },
+    error=function(err){
+      showModal(modalDialog(err$message, title="Unable to add user"))
+    }
+    )
+  })
+
 
 
 }
