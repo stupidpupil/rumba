@@ -20,7 +20,8 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 Loading required package: shiny
-Geospatial Data Abstraction Library extensions to R successfully loaded", "\n"))
+Geospatial Data Abstraction Library extensions to R successfully loaded
+GDAL binary built with GEOS: TRUE", "\n"))
 
     errorRegexp <- "^(Error|Stack trace)\\b"
     warningRegexp <- "^Warning\\b"
@@ -29,12 +30,14 @@ Geospatial Data Abstraction Library extensions to R successfully loaded", "\n"))
       "Copyright",
       "Loading required package:",
       "── Attaching packages",
+      "-- Attaching packages",
       "✔.+✔.+",
+      "v\s+.+v\s+.+"
       "(rgeos|rgdal):? version:",
       "GEOS runtime version",
       "Linking to sp version:",
-      "Loaded (PROJ\\.4|GDAL) runtime:",
-      "Path to (PROJ\\.4|GDAL) shared files:",
+      "Loaded (PROJ\\.4|GDAL|PROJ) runtime:",
+      "Path to (PROJ\\.4|GDAL|PROJ) shared files:",
       "Polygon checking: TRUE ",
       sep = "|"), ")")
 
