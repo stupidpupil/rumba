@@ -122,6 +122,10 @@ RumbaAuthzGroup <- R6Class("RumbaAuthzGroup", list(
       objectType = "group",
       addedAt = now()
     )
+  },
+
+  removeObject = function(name_to_remove){
+    self$adObjects <- self$adObjects %>% filter(sAMAccountName != name_to_remove)
   }
 
 

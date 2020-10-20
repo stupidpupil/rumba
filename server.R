@@ -373,9 +373,7 @@ server <- function(input, output, session){
 
     error=function(err){
       showModal(modalDialog(err$message, title="Unable to create group"))
-    }
-
-    )
+    })
 
   })
 
@@ -384,9 +382,46 @@ server <- function(input, output, session){
     selectedAuthzGroupEntries(RumbaAuthzGroup$new(input$selectAuthzGroup)$adObjects)
   })
 
-  output$tableAuthzGroupEntries <- renderTable({
-    selectedAuthzGroupEntries()
+  output$uiTableAuthzGroupEntries <- renderUI({
+    req(selectedAuthzGroupEntries())
+
+    entries <- selectedAuthzGroupEntries()
+
+    if(nrow(entries) == 0){
+      return()
+    }
+
+    rows <- list()
+
+    for (i in 1:nrow(entries)) {
+      entry <- entries[i, ]
+      rows <- append(rows, list(tags$tr(
+        tags$td(class="adObjectType", 
+          tags$i(class=ifelse(entry[[1, "objectType"]] == "user", "fa fa-user", "fa fa-user-friends"))),
+
+        tags$td(class="sAMAccountName", entry[[1, "sAMAccountName"]]),
+        tags$td(class="delete", actionLink(paste0("linkAuthzGroupEntriesDelete-", i), tags$i(class="fa fa-times")))
+      )))
+    }
+
+    tags$table(class="table shiny-table table-spacing-s authz-group-entries", tags$tbody(rows))
   })
+
+
+  for (i in 1:100L) {
+    local({
+      j <- i
+
+      observeEvent(input[[paste0("linkAuthzGroupEntriesDelete-", j)]],{
+        name_to_remove <- selectedAuthzGroupEntries()[[j, "sAMAccountName"]]
+        grp <- RumbaAuthzGroup$new(input$selectAuthzGroup)
+        grp$removeObject(name_to_remove)
+        grp$save()
+        selectedAuthzGroupEntries(grp$adObjects)
+     })
+    })
+  }
+
 
   observeEvent(input$buttonAuthzGroupAddUser, {
     req(input$selectAuthzGroup)

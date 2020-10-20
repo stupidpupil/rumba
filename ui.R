@@ -7,7 +7,8 @@ dashboardPage(
 
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "rumba.css"),
-      tags$link(rel = "stylesheet", type = "text/css", href = "rumba_logviewer.css")
+      tags$link(rel = "stylesheet", type = "text/css", href = "rumba_logviewer.css"),
+      tags$link(rel = "stylesheet", type = "text/css", href = "rumba_authorization.css")
       ),
 
 
@@ -67,7 +68,7 @@ dashboardPage(
             actionButton("buttonAuthzNewGroup", "New Group")
           ),
           box(width=6,
-            tableOutput("tableAuthzGroupEntries"),
+            uiOutput("uiTableAuthzGroupEntries"),
             textInput("textAuthzGroupNewNames", "User or Group Name"),
             actionButton("buttonAuthzGroupAddUser", "Add User"),
             actionButton("buttonAuthzGroupAddGroup", "Add Group")
