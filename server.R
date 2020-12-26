@@ -11,7 +11,8 @@ server <- function(input, output, session){
       menuItem("Apps", tabName="apps", icon = icon("boxes"), selected=(selectedItem=="app"),
         badgeLabel=length(rumba_apps()), badgeColor = "light-blue"),
       menuItem("App details", tabName="appDetails", icon = icon("box-open"), selected=(selectedItem=="appDetails")),
-      menuItem("Log viewer", tabName="logViewer", icon = icon("align-left"), selected=(selectedItem=="logViewer"))
+      menuItem("Log viewer", tabName="logViewer", icon = icon("align-left"), selected=(selectedItem=="logViewer")),
+      menuItem("Authorization", tabName="authzGroups", icon = icon("user-friends"), selected=(selectedItem=="authzGroups"))
     )
   })
 
@@ -341,6 +342,124 @@ server <- function(input, output, session){
   })
 
   output$uiLogviewer <- renderLogviewer(logLines)
+
+
+  #
+  # Authorization Groups
+  #
+
+  selectedAuthzGroupEntries <- reactiveVal({
+    tibble()
+  })
+
+  observe({
+    req(authz_groups())
+    selected = isolate(input$selectAuthzGroup)
+    updateSelectInput(session, "selectAuthzGroup", choices=authz_groups(), selected=selected)
+  })
+
+
+  observeEvent(input$buttonAuthzNewGroup, {
+    req(input$textAuthzNewGroupName)
+
+    tryCatch({
+      grp <- RumbaAuthzGroup$new(input$textAuthzNewGroupName)
+      grp$save()
+
+      updateTextInput(session, "textAuthzNewGroupName", value = "")
+
+      selected = grp$name
+      choices <- list.files("authz_groups", recursive=TRUE, pattern="*.csv") %>% str_sub(1L,-5L)
+      updateSelectInput(session, "selectAuthzGroup", choices=choices, selected=selected)
+    },
+
+    error=function(err){
+      showModal(modalDialog(err$message, title="Unable to create group"))
+    })
+
+  })
+
+  observeEvent(input$selectAuthzGroup, {
+    req(input$selectAuthzGroup)
+    selectedAuthzGroupEntries(RumbaAuthzGroup$new(input$selectAuthzGroup)$adObjects)
+  })
+
+  output$uiTableAuthzGroupEntries <- renderUI({
+    req(selectedAuthzGroupEntries())
+
+    entries <- selectedAuthzGroupEntries()
+
+    if(nrow(entries) == 0){
+      return()
+    }
+
+    rows <- list()
+
+    for (i in 1:nrow(entries)) {
+      entry <- entries[i, ]
+      rows <- append(rows, list(tags$tr(
+        tags$td(class="adObjectType", 
+          tags$i(class=ifelse(entry[[1, "objectType"]] == "user", "fa fa-user", "fa fa-user-friends"))),
+
+        tags$td(class="sAMAccountName", entry[[1, "sAMAccountName"]]),
+        tags$td(class="delete", actionLink(paste0("linkAuthzGroupEntriesDelete-", i), tags$i(class="fa fa-times")))
+      )))
+    }
+
+    tags$table(class="table shiny-table table-spacing-s authz-group-entries", tags$tbody(rows))
+  })
+
+
+  for (i in 1:100L) {
+    local({
+      j <- i
+
+      observeEvent(input[[paste0("linkAuthzGroupEntriesDelete-", j)]],{
+        name_to_remove <- selectedAuthzGroupEntries()[[j, "sAMAccountName"]]
+        grp <- RumbaAuthzGroup$new(input$selectAuthzGroup)
+        grp$removeObject(name_to_remove)
+        grp$save()
+        selectedAuthzGroupEntries(grp$adObjects)
+     })
+    })
+  }
+
+
+  observeEvent(input$buttonAuthzGroupAddUser, {
+    req(input$selectAuthzGroup)
+    req(input$textAuthzGroupNewNames)
+    tryCatch({
+      grp <- RumbaAuthzGroup$new(input$selectAuthzGroup)
+      grp$addUser(input$textAuthzGroupNewNames)
+      updateTextInput(session, "textAuthzGroupNewNames", value = "")
+      grp$save()
+      rumba_authz_controller$authzGroupDidUpdate(grp$name)
+      selectedAuthzGroupEntries(grp$adObjects)
+    },
+    error=function(err){
+      showModal(modalDialog(err$message, title="Unable to add user"))
+    }
+    )
+  })
+
+
+  observeEvent(input$buttonAuthzGroupAddGroup, {
+    req(input$selectAuthzGroup)
+    req(input$textAuthzGroupNewNames)
+    tryCatch({
+      grp <- RumbaAuthzGroup$new(input$selectAuthzGroup)
+      grp$addGroup(input$textAuthzGroupNewNames)
+      updateTextInput(session, "textAuthzGroupNewNames", value = "")
+      grp$save()
+      rumba_authz_controller$authzGroupDidUpdate(grp$name)
+      selectedAuthzGroupEntries(grp$adObjects)
+    },
+    error=function(err){
+      showModal(modalDialog(err$message, title="Unable to add group"))
+    }
+    )
+  })
+
 
 
 }

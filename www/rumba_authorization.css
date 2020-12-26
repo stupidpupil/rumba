@@ -1,0 +1,4 @@
+.authz-group-entries td.adObjectType,
+.authz-group-entries td.delete{
+  width:1em;
+}

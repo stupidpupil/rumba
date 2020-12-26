@@ -29,6 +29,7 @@ webPath: my_cool_app
 | webPath     | my_cool_app |         | The URL path that will be used for the app. This example might route "https://example.com/my_cool_app" to the R app. Must be set. Can only include lowercase letters (a-z), numbers (0-9) and underscores (\_). |
 | workerCount | 5           | 2       | The number of R workers to start for this app. Must be between 1 and 9.                                                                                                                                           |
 | basePort    | 5001        | Dynamic | The start of local port range that the R workers will use. Must be in 5001-6999. If you don't explicitly set a port, then your application will be allocated a range in 7001-12001                                                  |
+| allow       | HollowMen   | *Empty* | One or more Rumba Authorization Groups. See the *Authorization* section |
 
 
 ## config.yml - Rumba config
@@ -39,6 +40,30 @@ webPath: my_cool_app
 | iisSitePath              | C:/inetpub/wwwroot/                                       | The physical path that Rumba will try to create sub-directories, containing web.config files with rewrite rules, in.                         |
 | appsDir                  | apps                                                      | Where Rumba will look for app directories. Each app directory must contain a valid rumba.yml file, as described above. |
 
+
+## Authorization
+
+By default Rumba will not touch authorization settings. However, you can choose to define groups of Active Directory Users and Roles/Groups and only permit access to these on an app-by-app basis.
+
+In *authz_groups/HollowMen.csv*:
+
+```csv
+sAMAccountName,objectType,addedAt
+ab123456,user,2020-10-18T10:14:21Z
+
+```
+
+In your app's *rumba.yml*:
+
+```yaml
+# an example rumba.yml file
+webPath: my_cool_app
+allow:
+  - HollowMen
+
+```
+
+Be aware that if *allow* is defined in a *rumba.yml*, Rumba will clear any existing Authorization rules and replace them its own.
 
 ## Alternatives
 

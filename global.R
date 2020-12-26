@@ -5,6 +5,8 @@ library(shiny)
 library(shinydashboard)
 
 source("rumba_port_allocator.R")
+source("rumba_authz_controller.R")
+
 source("rumba_iis_application_host_config.R")
 source("rumba_iis_web_config.R")
 
@@ -24,6 +26,7 @@ if(file.exists("config.yml")){
 }
 
 rumba_port_allocator <- RumbaPortAllocator$new()
+rumba_authz_controller <- RumbaAuthzController$new()
 
 rumba_iis_application_host_config <- 
   RumbaIISApplicationHostConfig$new(rumba_options$iisApplicationHostConfig)
@@ -102,6 +105,11 @@ rumba_apps_with_resources <- reactivePoll(2500, NULL,
 log_paths <- reactivePoll(750, NULL,
   checkFunc = function(){list.files("logs", recursive=TRUE, pattern="*/*/*.log")},
   valueFunc = function(){list.files("logs", recursive=TRUE, pattern="*/*/*.log")}
+)
+
+authz_groups <- reactivePoll(750, NULL,
+  checkFunc = function(){list.files("authz_groups", recursive=TRUE, pattern="*.csv")},
+  valueFunc = function(){list.files("authz_groups", recursive=TRUE, pattern="*.csv") %>% str_sub(1L,-5L)}
 )
 
 onStop(function(){
