@@ -32,7 +32,7 @@ GDAL binary built with GEOS: TRUE", "\n"))
       "── Attaching packages",
       "-- Attaching packages",
       "✔.+✔.+",
-      "v\s+.+v\s+.+"
+      "v\\s+.+v\\s+.+",
       "(rgeos|rgdal):? version:",
       "GEOS runtime version",
       "Linking to sp version:",
