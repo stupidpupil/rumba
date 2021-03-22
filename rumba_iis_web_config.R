@@ -25,7 +25,9 @@ RumbaIISWebConfig <- R6Class("RumbaIISWebConfig", list(
 
     self$rewriteRuleName <- paste0(self$rumbaRewriteRulePrefix, app$options$basePort, "-", app$options$workerCount)
 
-    self$rewriteRuleXPath <- paste0("/configuration/system.webServer/rewrite/rules/rule[@name='", self$rewriteRuleName, "']") 
+    #self$rewriteRuleXPath <- paste0("/configuration/system.webServer/rewrite/rules/rule[@name='", self$rewriteRuleName, "']") 
+    # See Issue #9
+    self$rewriteRuleXPath <- paste0("/configuration/system.webServer/rewrite/rules/rule[starts-with(name,'", self$rumbaRewriteRulePrefix, "')]") 
 
   },
 
