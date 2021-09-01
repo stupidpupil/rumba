@@ -16,7 +16,7 @@ RumbaWorker <- R6Class("RumbaWorker", list(
 
   activeWsClients = 0,
   lastWsClientSeen = Sys.time(),
-  stopShinyAfterIdleSeconds = 30L,
+  stopShinyAfterIdleSeconds = 120L,
 
   initialize = function(appName, appDir, basePort, workerIndex){
     stopifnot(is.character(appName))
