@@ -45,7 +45,7 @@ RumbaIISApplicationHostConfig <- R6Class("RumbaIISApplicationHostConfig", list(
 
     xml_add_child(arr, "affinity", useCookie="true")
     xml_add_child(arr, "loadBalancing") #TODO: Check if this is necessary
-    xml_add_child(arr, "healthCheck", url="http://localhost/")
+    #xml_add_child(arr, "healthCheck", url="http://localhost/")
 
     return(doc)
   },
