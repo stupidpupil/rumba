@@ -36,12 +36,12 @@ dashboardPage(
         ),
 
         fluidRow(
-          box(width=8,
+          box(width=6,
             uiOutput("uiSelectedAppInvalidError"),
             uiOutput("uiSelectedAppDetails")
           ),
 
-          box(width=4,
+          box(width=6,
             uiOutput("uiSelectedAppButtons"),
             uiOutput("uiTableSelectedAppRumbaWorkers")
           )

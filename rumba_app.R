@@ -116,7 +116,7 @@ RumbaApp <- R6Class("RumbaApp", list(
   },
 
   getClaimedPorts = function(){
-    sapply(self$workers, function(w){w$getPort()})
+    sapply(self$workers, function(w){w$getClaimedPorts()})
   },
 
   start = function(){

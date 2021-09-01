@@ -260,6 +260,7 @@ server <- function(input, output, session){
           tags$th("Host"),
           tags$th("Port"),
           tags$th("State"),
+          tags$th("ShinyState"),
           tags$th("Memory")
         )
       ),
@@ -270,6 +271,7 @@ server <- function(input, output, session){
             tags$td(class="rumba-host", w$getHost()),
             tags$td(class="rumba-port", w$getPort()),
             tags$td(uiOutput(paste0("textTableSelectedAppRumbaWorkersStateTd", i), inline=TRUE)),
+            tags$td(uiOutput(paste0("textTableSelectedAppRumbaWorkersShinyStateTd", i), inline=TRUE)),
             tags$td(uiOutput(paste0("textTableSelectedAppRumbaWorkersMemoryTd", i), inline=TRUE))
           )})
       )
@@ -291,6 +293,25 @@ server <- function(input, output, session){
           req(selectedRumbaAppWithTickAndState())
           if(length(selectedRumbaAppWithTickAndState()$workers) < j){return("")}
           uiTableSelectedAppRumbaWorkersStateColumns[[d]](selectedRumbaAppWithTickAndState()$workers[[j]])
+        })
+      })
+    }
+  }
+
+  uiTableSelectedAppRumbaWorkersShinyStateColumns = list(
+    ShinyState = function(w){tags$span(class=paste0("rumba-state ", w$shinyState), w$shinyState)}
+  )
+
+  for(c in names(uiTableSelectedAppRumbaWorkersShinyStateColumns)){
+    for (i in 1:10) {
+      local({
+        j <- i
+        d <- c
+
+        output[[paste0("textTableSelectedAppRumbaWorkers", d, "Td", i)]] <- renderUI({
+          req(selectedRumbaAppWithResources())
+          if(length(selectedRumbaAppWithResources()$workers) < j){return("")}
+          uiTableSelectedAppRumbaWorkersShinyStateColumns[[d]](selectedRumbaAppWithResources()$workers[[j]])
         })
       })
     }
