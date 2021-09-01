@@ -273,6 +273,7 @@ RumbaWorker <- R6Class("RumbaWorker", list(
     if(self$shinyState == "starting"){
       if(self$process$is_alive()){
         if(self$logHasListening()){
+          self$lastWsClientSeen <- Sys.time() # HACK to ensure that slow loading Shiny apps aren't slept immediately
           self$shinyState <- "started"
         }
       }else{
