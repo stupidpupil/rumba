@@ -73,14 +73,7 @@ RumbaWorker <- R6Class("RumbaWorker", list(
       list(
         call = function(req){
 
-          ping_res <- pingr::ping_port(
-            self$getHost(),
-            port = self$getShinyPort(),
-            count = 1L,
-            timeout = 0.1
-          )
-
-          if(is.na(ping_res)){
+          if(self$shinyState != "started"){
             self$startShiny()
 
             failed_resp <- list(
