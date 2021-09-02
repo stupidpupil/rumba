@@ -89,7 +89,7 @@ RumbaWorker <- R6Class("RumbaWorker", list(
             failed_resp <- list(
               status = 200L,
               headers = list('Content-Type' = 'text/html'),
-              body = "Loading...<script>setInterval(function(){location.reload();}, 750)</script>"
+              body = readChar("www/reloader.html", file.info("www/reloader.html")$size)
             )
 
             return(failed_resp)
