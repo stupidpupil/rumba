@@ -267,6 +267,7 @@ RumbaWorker <- R6Class("RumbaWorker", list(
     if(self$shinyState == "starting"){
       if(self$process$is_alive()){
         if(self$logHasListening()){
+          Sys.sleep(0.2)
           self$app$updateShinyStartupEstimateSeconds(
             as.double(difftime(Sys.time(), self$shinyStartedAt, units="secs")))
           self$lastWsClientSeen <- Sys.time() # HACK to ensure that slow loading Shiny apps aren't slept immediately
