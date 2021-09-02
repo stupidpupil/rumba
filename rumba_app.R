@@ -20,6 +20,8 @@ RumbaApp <- R6Class("RumbaApp", list(
 
   name = NULL,
 
+  shinyStartupEstimateSeconds = 5,
+
   initialize = function(appDir, ...){
     stopifnot(is.character(appDir))
     self$name = basename(appDir)
@@ -29,6 +31,13 @@ RumbaApp <- R6Class("RumbaApp", list(
 
     self$reloadOptions()
 
+  },
+
+  updateShinyStartupEstimateSeconds = function(new_startup_seconds) {
+    self$shinyStartupEstimateSeconds <-
+      ((2/5) * new_startup_seconds) +
+      ((2/5) * max(self$shinyStartupEstimateSeconds, new_startup_seconds)) +
+      ((1/5) * min(self$shinyStartupEstimateSeconds, new_startup_seconds))
   },
 
   reloadOptions = function(){
@@ -95,8 +104,7 @@ RumbaApp <- R6Class("RumbaApp", list(
     for (i in 1L:self$options$workerCount) {
       self$workers[[i]] <-
         RumbaWorker$new(
-          self$name,
-          self$appDir,
+          self,
           self$options$basePort,
           i
         )

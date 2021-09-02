@@ -10,6 +10,8 @@ source("rumba_authz_controller.R")
 source("rumba_iis_application_host_config.R")
 source("rumba_iis_web_config.R")
 
+source("rumba_reloader_html.R")
+
 source("rumba_worker.R")
 source("rumba_app.R")
 

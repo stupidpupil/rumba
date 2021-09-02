@@ -3,8 +3,7 @@ library(processx)
 
 RumbaWorker <- R6Class("RumbaWorker", list(
 
-  appName = NULL,
-  appDir = NULL,
+  app = NULL,
   basePort = NULL,
   workerIndex = NULL,
 
@@ -16,16 +15,14 @@ RumbaWorker <- R6Class("RumbaWorker", list(
 
   activeWsClients = 0,
   lastWsClientSeen = Sys.time(),
+  shinyStartedAt = Sys.time(),
   stopShinyAfterIdleSeconds = 120L,
 
-  initialize = function(appName, appDir, basePort, workerIndex){
-    stopifnot(is.character(appName))
-    stopifnot(is.character(appDir), file.exists(appDir))
+  initialize = function(app, basePort, workerIndex){
     stopifnot(is.numeric(basePort), basePort %in% 5001:12001)
     stopifnot(is.numeric(workerIndex), workerIndex %in% 1:100)
 
-    self$appName <- appName
-    self$appDir <- appDir
+    self$app <- app
     self$basePort <- as.integer(basePort)
     self$workerIndex <- as.integer(workerIndex)
   },
@@ -58,7 +55,7 @@ RumbaWorker <- R6Class("RumbaWorker", list(
 
   getRCommand = function(){
     paste0(
-      "shiny::runApp('", self$appDir, "',",
+      "shiny::runApp('", self$app$appDir, "',",
       "host='", self$getHost(),"',",
       "port=", self$getShinyPort(),")"
     )
@@ -89,7 +86,10 @@ RumbaWorker <- R6Class("RumbaWorker", list(
             failed_resp <- list(
               status = 200L,
               headers = list('Content-Type' = 'text/html'),
-              body = readChar("www/reloader.html", file.info("www/reloader.html")$size)
+              body = rumba_reloader_html(
+                progress_max = self$app$shinyStartupEstimateSeconds,
+                progress_value = as.double(difftime(Sys.time(), self$shinyStartedAt, units="secs"))
+                )
             )
 
             return(failed_resp)
@@ -164,6 +164,7 @@ RumbaWorker <- R6Class("RumbaWorker", list(
     }
 
     self$shinyState <- "starting"
+    self$shinyStartedAt <- Sys.time()
 
     tryCatch({
       binPath <- ps::ps_exe(ps::ps_handle())
@@ -173,7 +174,7 @@ RumbaWorker <- R6Class("RumbaWorker", list(
       }
 
 
-      logDir <- paste0("./logs/", self$appName, "/", self$workerIndex)
+      logDir <- paste0("./logs/", self$app$appName, "/", self$workerIndex)
 
       if(!file.exists(logDir)){
         dir.create(logDir, recursive = TRUE, showWarnings = TRUE)
@@ -183,7 +184,7 @@ RumbaWorker <- R6Class("RumbaWorker", list(
         file.remove(paste(logDir, existingLogs[1:(length(existingLogs) -4)], sep="/"))
       }
 
-      self$latestLogPath <- paste0(logDir, "/" , format(Sys.time(), "%Y%m%dT%H%M%S", tz="UTC"), " ", self$appName, "-", self$workerIndex, ".log")
+      self$latestLogPath <- paste0(logDir, "/" , format(Sys.time(), "%Y%m%dT%H%M%S", tz="UTC"), " ", self$app$appName, "-", self$workerIndex, ".log")
 
 
       self$process <- process$new(
@@ -273,6 +274,8 @@ RumbaWorker <- R6Class("RumbaWorker", list(
     if(self$shinyState == "starting"){
       if(self$process$is_alive()){
         if(self$logHasListening()){
+          self$app$updateShinyStartupEstimateSeconds(
+            as.double(difftime(Sys.time(), self$shinyStartedAt, units="secs")))
           self$lastWsClientSeen <- Sys.time() # HACK to ensure that slow loading Shiny apps aren't slept immediately
           self$shinyState <- "started"
         }
