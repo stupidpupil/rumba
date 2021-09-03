@@ -87,17 +87,39 @@ RumbaWorker <- R6Class("RumbaWorker", list(
             return(failed_resp)
           }
 
-          req_curl <- shinyloadtest:::req_rook_to_curl(req, self$getHost(), self$getPort())
+          req_curl <- shinyloadtest:::req_rook_to_curl(req, paste0(self$getHost(),":",self$getShinyPort()))
 
-          h <- curl::new_handle()
 
-          curl::handle_setheaders(h, .list = req_curl)
 
           targetURL <- shinyloadtest:::URLBuilder$new(paste0("http://",self$getHost(),":", self$getShinyPort()))
           query <- gsub("\\?", "", req$QUERY_STRING)
           url <- targetURL$appendPath(req$PATH_INFO)$setQuery(query)$build()
 
-          resp_curl <- curl::curl_fetch_memory(url, handle = h)
+          h <- curl::new_handle()
+          curl::handle_setheaders(h, .list = req_curl)
+
+          if (!is.null(req$HTTP_CONTENT_LENGTH) && as.integer(req$HTTP_CONTENT_LENGTH) > 0) {
+
+            curl::handle_setopt(h, post=TRUE, postfieldsize = as.integer(req$HTTP_CONTENT_LENGTH))
+            req$rook.input$rewind()
+            curl::handle_setopt(h, readfunction = function(n) {
+              data <- req$rook.input$read(n)
+              return(data)
+            })
+            req_type <- 'post'
+          }
+
+
+          tryCatch({
+            resp_curl <- curl::curl_fetch_memory(url, handle = h)
+
+          },
+            error = function(err){
+              #print(req_curl)
+              #print(req$rook.input)
+              print(err)}
+          )
+
 
           shinyloadtest:::resp_httr_to_rook(resp_curl)
         },
