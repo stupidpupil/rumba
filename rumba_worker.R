@@ -16,7 +16,6 @@ RumbaWorker <- R6Class("RumbaWorker", list(
   activeWsClients = 0,
   lastWsClientSeen = Sys.time(),
   shinyStartedAt = Sys.time(),
-  stopShinyAfterIdleSeconds = 120L,
 
   initialize = function(app, basePort, workerIndex){
     stopifnot(is.numeric(basePort), basePort %in% 5001:12001)
@@ -240,6 +239,39 @@ RumbaWorker <- R6Class("RumbaWorker", list(
     any(readLines(self$latestLogPath) == lookingFor)
   },
 
+  getShinyIdleSeconds = function(){
+    if(self$shinyState != 'started'){
+      return(0L)
+    }
+
+    if(self$activeWsClients > 0){
+      return(0L)
+    }
+
+    return(as.integer(difftime(Sys.time(), self$lastWsClientSeen, units="secs")))
+  },
+
+  getShinyEvictionPriority = function(){
+
+    # Has to be idle for at least 15 seconds to be eligible
+    if(self$getShinyIdleSeconds() < 15L){
+      return(-1L)
+    }
+
+    priority <- 1
+
+    priority <- priority +
+      max(0, self$getShinyIdleSeconds() - self$app$shinyStartupEstimateSeconds)
+
+    priority <- priority +
+      self$getRSS()/(10*1024*1024)
+
+    priority <- priority /
+      1+sqrt(self$app$shinyStartupEstimateSeconds)
+
+    return(priority)
+  },
+
   tick = function(){
 
     if(self$shinyState == "stopping"){
@@ -255,12 +287,6 @@ RumbaWorker <- R6Class("RumbaWorker", list(
     if(self$shinyState == "started"){
       if(!self$process$is_alive()){
         self$shinyState <- "failed"
-      }
-
-      if(self$activeWsClients == 0){
-        if(as.integer(difftime(Sys.time(), self$lastWsClientSeen, units="secs")) > self$stopShinyAfterIdleSeconds){
-          self$stopShiny()
-        }
       }
     }
 

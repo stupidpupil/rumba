@@ -20,7 +20,8 @@ rumba_options <- list(
   iisSitePath = "C:/inetpub/wwwroot",
   appsDir = "apps",
   webPrefix = "http://localhost/",
-  maxAppsUIElements = 100L
+  maxAppsUIElements = 100L,
+  evictIfRSSGreaterThanMiB = 512
 )
 
 if(file.exists("config.yml")){
@@ -75,6 +76,18 @@ rumba_apps_with_tick_and_state <- reactivePoll(750, NULL,
   checkFunc = function(){
 
     for (app in rumba_apps_unreactive) {app$tick()}
+
+    workers <- sapply(rumba_apps_unreactive, function(app){app$workers}) %>% unlist()
+
+    evictIfRSSGreaterThanBytes <- rumba_options$evictIfRSSGreaterThanMiB * 1024 * 1024
+    if(sum(sapply(workers, function(w){w$getRSS()}), na.rm=TRUE) > evictIfRSSGreaterThanBytes){
+      workers <- workers[rev(order(sapply(workers, function(w){w$getShinyEvictionPriority()})))]
+
+      if(workers[[1]]$getShinyEvictionPriority() > 0L){
+        workers[[1]]$stopShiny()
+      }
+
+    }
 
     list(
       dirs = rumba_apps_unreactive %>% map(~.x$appDir),
