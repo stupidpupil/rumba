@@ -166,7 +166,7 @@ RumbaWorker <- R6Class("RumbaWorker", list(
       }
 
 
-      logDir <- paste0("./logs/", self$app$appName, "/", self$workerIndex)
+      logDir <- paste0("./logs/", self$app$name, "/", self$workerIndex)
 
       if(!file.exists(logDir)){
         dir.create(logDir, recursive = TRUE, showWarnings = TRUE)
@@ -176,7 +176,7 @@ RumbaWorker <- R6Class("RumbaWorker", list(
         file.remove(paste(logDir, existingLogs[1:(length(existingLogs) -4)], sep="/"))
       }
 
-      self$latestLogPath <- paste0(logDir, "/" , format(Sys.time(), "%Y%m%dT%H%M%S", tz="UTC"), " ", self$app$appName, "-", self$workerIndex, ".log")
+      self$latestLogPath <- paste0(logDir, "/" , format(Sys.time(), "%Y%m%dT%H%M%S", tz="UTC"), " ", self$app$name, "-", self$workerIndex, ".log")
 
 
       self$process <- process$new(
