@@ -129,7 +129,9 @@ RumbaWorker <- R6Class("RumbaWorker", list(
           msg_buffer <- list()
           ws_in$onMessage(function(binary, message){msg_buffer <<- c(msg_buffer, list(message))})
 
-          ws_out <- websocket::WebSocket$new(paste0("ws://",self$getHost(),":", self$getShinyPort()))
+          ws_out <- websocket::WebSocket$new(
+            paste0("ws://",self$getHost(),":", self$getShinyPort()),
+            maxMessageSize = 512 * 1024 * 1024)
 
           ws_out$onOpen(function(open_event){
             ws_out$onMessage(function(msg_event){ws_in$send(msg_event$data)})
