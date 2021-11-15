@@ -4,7 +4,7 @@ Rumba is an R Shiny app for managing other R Shiny apps behind a Microsoft IIS i
 
 For each R Shiny app it handles:
 
-1) Starting and stopping a pool of local R workers.
+1) Starting and stopping a R workers for apps, on demand.
 2) Defining and destroying an IIS *Web Farm* containing those R workers.
 3) Creating and removing an IIS *Application Request Routing* rewrite rule for a site to point a path at that web farm.
 
