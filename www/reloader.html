@@ -1,1 +1,36 @@
-<div style="text-align:center;position:fixed;top:0;left:0;width:100%;height:100vh;font-size:3em;padding-top:1em;font-family:system-ui,ui-sans-serif,sans-serif;background-color:#ddd;color:#555;">Please wait...<progress max="$progress_max" value="$progress_value" style="display:block;margin:auto;"><script>setInterval(function(){location.reload();}, 1500)</script>
+<div style="text-align:center;position:fixed;top:0;left:0;width:100%;height:100vh;font-size:3em;padding-top:1em;font-family:system-ui,ui-sans-serif,sans-serif;background-color:#ddd;color:#555;">Please wait...<progress id="progress_indicator" max="$progress_max" value="$progress_value" style="display:block;margin:auto;">
+
+  <script>
+
+    var progressLoaded = function(){
+
+      var progressInt = parseInt(this.responseText, 10);
+
+      if(isNaN(progressInt)){
+        // TODO
+        return(false);
+      }
+
+      if(progressInt >= 100){
+        location.reload();
+        return(true);
+      }
+
+      var indicator = document.getElementById("progress_indicator");
+      indicator.max = 100;
+      indicator.value = progressInt;
+
+      setTimeout(updateProgress, 1000);
+    }
+
+    var updateProgress = function(){
+      var oReq = new XMLHttpRequest();
+      oReq.addEventListener("load", progressLoaded);
+      oReq.open("GET", "/.rumba/progress");
+      oReq.send();
+    }
+
+
+    setTimeout(updateProgress, 500)
+
+  </script>

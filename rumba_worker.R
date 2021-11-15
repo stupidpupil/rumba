@@ -72,15 +72,40 @@ RumbaWorker <- R6Class("RumbaWorker", list(
       list(
         call = function(req){
 
-          if(self$shinyState != "started"){
-            self$startShiny()
+           if(self$shinyState != "started"){
+              self$startShiny()
 
+              progress_value <- as.double(difftime(Sys.time(), self$shinyStartedAt, units="secs"))
+              progress_value <- progress_value + 1
+              
+              progress_max <- self$app$shinyStartupEstimateSeconds
+              progress_max <- progress_max + 1
+              progress_max <- max(progress_max/0.95, progress_value+3)
+            }
+
+          if(req$PATH_INFO == "/.rumba/progress"){
+            status_resp = list(
+              status = 200L,
+              headers = list('Content-Type' = 'text/plain')
+            )
+
+            if(self$shinyState != "started"){
+              progress_est <- floor(100*progress_value/progress_max)
+              status_resp$body <- as.character(progress_est)
+            }else{
+              status_resp$body <- "100"
+            }
+
+            return(status_resp)
+          }
+
+          if(self$shinyState != "started"){
             failed_resp <- list(
               status = 200L,
               headers = list('Content-Type' = 'text/html'),
               body = rumba_reloader_html(
-                progress_max = self$app$shinyStartupEstimateSeconds,
-                progress_value = as.double(difftime(Sys.time(), self$shinyStartedAt, units="secs"))
+                progress_max = progress_max,
+                progress_value = progress_value
                 )
             )
 
