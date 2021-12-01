@@ -1,14 +1,13 @@
 <div style="text-align:center;position:fixed;top:0;left:0;width:100%;height:100vh;font-size:3em;padding-top:1em;font-family:system-ui,ui-sans-serif,sans-serif;background-color:#ddd;color:#555;">Please wait...
   <progress id="progress_indicator" max="$progress_max" value="$progress_value" style="display:block;margin:auto;">
-
+ 
   <script>
-
-    var progressLoaded = function(){
+    var updatedProgressLoaded = function(){
 
       var progressInt = parseInt(this.responseText, 10);
 
       if(isNaN(progressInt)){
-        // TODO
+        location.reload(); // Not an ideal reaction...
         return(false);
       }
 
@@ -17,21 +16,31 @@
         return(true);
       }
 
-      var indicator = document.getElementById("progress_indicator");
-      indicator.max = 100;
-      indicator.value = progressInt;
-
-      setTimeout(updateProgress, 1000);
+      setTimeout(fetchUpdatedProgress, 1000);
     }
 
-    var updateProgress = function(){
+    var fetchUpdatedProgress = function(){
       var oReq = new XMLHttpRequest();
-      oReq.addEventListener("load", progressLoaded);
+      oReq.addEventListener("load", updatedProgressLoaded);
       oReq.open("GET", ".rumba/progress");
       oReq.send();
     }
 
-
-    setTimeout(updateProgress, 500)
-
+    var incrementProgressIntervalMilliseconds = 1000/40;
+    var incrementProgressIntervalSeconds = incrementProgressIntervalMilliseconds/1000;
+    var incrementProgress = function(){
+      var indicator = document.getElementById("progress_indicator");
+ 
+      var new_value = indicator.value + incrementProgressIntervalSeconds;
+      var poss_new_max = new_value + 3*incrementProgressIntervalSeconds;
+ 
+      if ((new_value/indicator.max) > (new_value/poss_new_max)) {
+        indicator.max = poss_new_max;
+      }
+ 
+      indicator.value = new_value;
+    }
+ 
+    setInterval(incrementProgress, incrementProgressIntervalMilliseconds);
+    setTimeout(fetchUpdatedProgress, 500);
   </script>
